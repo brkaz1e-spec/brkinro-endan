@@ -60,7 +60,32 @@
             letter-spacing: 2px;
         }
 
-        input[type="text"], input[type="number"] {
+        .auth-toggle {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .auth-toggle button {
+            flex: 1;
+            padding: 10px;
+            background: #090a0f;
+            border: 1px solid #2a2d42;
+            color: var(--text-dim);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-bottom: 0;
+        }
+
+        .auth-toggle button.active {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        input[type="text"], input[type="number"], input[type="password"] {
             width: 100%;
             padding: 15px;
             border-radius: 10px;
@@ -74,7 +99,7 @@
             transition: 0.3s;
         }
 
-        input[type="text"]:focus, input[type="number"]:focus {
+        input[type="text"]:focus, input[type="number"]:focus, input[type="password"]:focus {
             border-color: var(--accent);
             box-shadow: 0 0 10px var(--accent-glow);
         }
@@ -339,14 +364,22 @@
 </head>
 <body>
 
-    <!-- UNOS TAJNOG TOKENA I IMENA -->
+    <!-- SYSTEM ZA PRIJAVU I REGISTRACIJU -->
     <div id="auth-screen">
         <h1>🔒 RESTRICTED PRISTUP</h1>
-        <p style="color: var(--text-dim); margin-bottom: 20px;">Unesi token i ime da vidiš detalje rođendana</p>
-        <input type="text" id="name-input" placeholder="TVOJE IME (Za Leaderboard)">
-        <input type="text" id="token-input" placeholder="UNESI TAJNI TOKEN">
-        <button onclick="checkToken()">OTKLJUČAJ PRISTUP</button>
-        <p id="error-msg" class="error-msg">❌ Pogrešan token ili prazno ime!</p>
+        <p style="color: var(--text-dim); margin-bottom: 15px;">Prijavi se ili kreiraj račun sa lozinkom</p>
+        
+        <div class="auth-toggle">
+            <button id="tab-auth-login" class="active" onclick="setAuthMode('login')">Prijava</button>
+            <button id="tab-auth-register" onclick="setAuthMode('register')">Registracija</button>
+        </div>
+
+        <input type="text" id="name-input" placeholder="KORISNIČKO IME">
+        <input type="password" id="password-input" placeholder="LOZINKA">
+        <input type="text" id="token-input" placeholder="TAJNI TOKEN (Za registraciju)" style="display: none;">
+        
+        <button id="auth-submit-btn" onclick="handleAuth()">PRIJAVI SE</button>
+        <p id="error-msg" class="error-msg">❌ Pogrešni podaci!</p>
     </div>
 
     <!-- GLAVNI PORTAL -->
@@ -359,6 +392,7 @@
             <button class="tab-btn" onclick="switchTab('people')">👥 Robovi</button>
             <button class="tab-btn" onclick="switchTab('games')">🎮 Igre</button>
             <button class="tab-btn" onclick="switchTab('gambling')" style="color: var(--gold); border-color: var(--gold);">🎰 Kocka</button>
+            <button class="tab-btn" onclick="logout()" style="background: #250912; color: #ff3355; border-color: #ff0055;">🚪 Odjava</button>
         </nav>
 
         <!-- KATEGORIJA 1: POZIVNICA -->
@@ -438,7 +472,7 @@
         <!-- KATEGORIJA 6: KOCKA -->
         <div id="tab-gambling" class="tab-content">
             <div class="currency-box">
-                <span>TVOJ BALANS:</span>
+                <span>TVOJ BALANS (<span id="user-display-name"></span>):</span>
                 <span id="smoki-balance">1000 🥜 Smokija</span>
             </div>
 
@@ -483,10 +517,8 @@
 
     <script>
         // ======================= PODEŠAVANJA =======================
-        // 1. OVDJE PROMIJENI TAJNI TOKEN AKO ŽELIŠ:
         const SECRET_TOKEN = "bday444962026bybrkaz"; 
 
-        // 2. LISTA POZVANIH GOSTIJU:
         const invitedPeople = [
             "Adis", 
             "Armin", 
@@ -500,53 +532,132 @@
         ];
         
         let playerName = "";
-        let smoki = 10;
+        let playerKey = "";
+        let smoki = 1000;
+        let authMode = "login"; // "login" ili "register"
 
         // ======================= FIREBASE SETUP =======================
-        // OVDJE ZALIJEPI SVOJ FIREBASE CONFIG KAD GA NAPRAVIŠ
         const firebaseConfig = {
-  apiKey: "AIzaSyD5zdsINfrXDPrXLGBHJoN8uyu0pM5xRYI",
-  authDomain: "brkazbday2026.firebaseapp.com",
-  databaseURL: "https://brkazbday2026-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "brkazbday2026",
-  storageBucket: "brkazbday2026.firebasestorage.app",
-  messagingSenderId: "421868684068",
-  appId: "1:421868684068:web:677f5d0b035c98125de9b1",
-  measurementId: "G-WSGJZNFGL5"
-};
+            apiKey: "AIzaSyD5zdsINfrXDPrXLGBHJoN8uyu0pM5xRYI",
+            authDomain: "brkazbday2026.firebaseapp.com",
+            databaseURL: "https://brkazbday2026-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "brkazbday2026",
+            storageBucket: "brkazbday2026.firebasestorage.app",
+            messagingSenderId: "421868684068",
+            appId: "1:421868684068:web:677f5d0b035c98125de9b1",
+            measurementId: "G-WSGJZNFGL5"
+        };
 
-        // Inicijalizacija baze
         let db;
         if(firebaseConfig.apiKey) {
             firebase.initializeApp(firebaseConfig);
             db = firebase.database();
         }
 
-        // ======================= AUTH & TABOVI =======================
-        function checkToken() {
-            const input = document.getElementById("token-input").value.trim();
+        // ======================= AUTH & NAVIGATION =======================
+        function setAuthMode(mode) {
+            authMode = mode;
+            document.getElementById("tab-auth-login").classList.toggle("active", mode === "login");
+            document.getElementById("tab-auth-register").classList.toggle("active", mode === "register");
+            document.getElementById("token-input").style.display = mode === "register" ? "block" : "none";
+            document.getElementById("auth-submit-btn").innerText = mode === "register" ? "REGISTRUJ SE" : "PRIJAVI SE";
+            document.getElementById("error-msg").style.display = "none";
+        }
+
+        function sanitizeKey(str) {
+            return str.toLowerCase().replace(/[.#$\[\]\s]/g, "_");
+        }
+
+        function handleAuth() {
             const name = document.getElementById("name-input").value.trim();
+            const pass = document.getElementById("password-input").value.trim();
+            const token = document.getElementById("token-input").value.trim();
             const errorMsg = document.getElementById("error-msg");
 
-            if (input === SECRET_TOKEN && name !== "") {
-                playerName = name;
-                document.getElementById("auth-screen").style.display = "none";
-                document.getElementById("main-content").style.display = "block";
-                
-                // Učitaj Smoki iz memorije
-                let savedSmoki = localStorage.getItem(`smoki_${playerName}`);
-                if(savedSmoki) {
-                    smoki = parseFloat(savedSmoki);
-                } else {
-                    updateSmoki(1000); 
+            if (!name || !pass) {
+                showError("❌ Unesi korisničko ime i lozinku!");
+                return;
+            }
+
+            playerKey = sanitizeKey(name);
+
+            if (authMode === "register") {
+                if (token !== SECRET_TOKEN) {
+                    showError("❌ Pogrešan tajni token!");
+                    return;
                 }
 
-                updateUI();
-                loadPeople();
-                if(db) loadLeaderboard();
-            } else {
-                errorMsg.style.display = "block";
+                if (!db) {
+                    // Fallback ako nema baze
+                    localStorage.setItem(`user_${playerKey}`, JSON.stringify({ name, pass, score: 1000 }));
+                    loginUser(name, 1000);
+                    return;
+                }
+
+                db.ref('users/' + playerKey).once('value').then(snapshot => {
+                    if (snapshot.exists()) {
+                        showError("❌ Korisničko ime je već zauzeto! Prijavi se.");
+                    } else {
+                        const newUser = { name: name, pass: pass, score: 1000 };
+                        db.ref('users/' + playerKey).set(newUser);
+                        db.ref('leaderboard/' + playerKey).set({ name: name, score: 1000 });
+                        loginUser(name, 1000);
+                    }
+                }).catch(() => showError("❌ Greška pri komunikaciji sa bazom!"));
+
+            } else { // LOGIN
+                if (!db) {
+                    const local = localStorage.getItem(`user_${playerKey}`);
+                    if (local) {
+                        const uData = JSON.parse(local);
+                        if (uData.pass === pass) loginUser(uData.name, uData.score || 1000);
+                        else showError("❌ Pogrešna lozinka!");
+                    } else showError("❌ Korisnik ne postoji! Registruj se.");
+                    return;
+                }
+
+                db.ref('users/' + playerKey).once('value').then(snapshot => {
+                    if (!snapshot.exists()) {
+                        showError("❌ Korisnik ne postoji! Registruj se.");
+                    } else {
+                        const userData = snapshot.val();
+                        if (userData.pass === pass) {
+                            loginUser(userData.name || name, userData.score !== undefined ? parseFloat(userData.score) : 1000);
+                        } else {
+                            showError("❌ Pogrešna lozinka!");
+                        }
+                    }
+                }).catch(() => showError("❌ Greška pri prijavi!"));
             }
+        }
+
+        function loginUser(name, loadedScore) {
+            playerName = name;
+            smoki = loadedScore;
+            document.getElementById("auth-screen").style.display = "none";
+            document.getElementById("main-content").style.display = "block";
+            document.getElementById("user-display-name").innerText = playerName;
+
+            updateUI();
+            loadPeople();
+            if(db) loadLeaderboard();
+        }
+
+        function logout() {
+            playerName = "";
+            playerKey = "";
+            document.getElementById("main-content").style.display = "none";
+            document.getElementById("auth-screen").style.display = "block";
+            document.getElementById("name-input").value = "";
+            document.getElementById("password-input").value = "";
+            document.getElementById("token-input").value = "";
+            document.getElementById("error-msg").style.display = "none";
+        }
+
+        function showError(msg) {
+            const err = document.getElementById("error-msg");
+            err.innerText = msg;
+            err.style.display = "block";
         }
 
         function switchTab(tabId) {
@@ -565,15 +676,17 @@
         // ======================= VALUTA (SMOKI) =======================
         function updateSmoki(amount) {
             smoki = Math.max(0, amount);
-            localStorage.setItem(`smoki_${playerName}`, smoki);
-            updateUI();
-            
-            if(db) {
-                db.ref('leaderboard/' + playerName).set({
-                    name: playerName,
-                    score: smoki
-                });
+            if (playerKey) {
+                localStorage.setItem(`smoki_${playerKey}`, smoki);
+                if(db) {
+                    db.ref('users/' + playerKey + '/score').set(smoki);
+                    db.ref('leaderboard/' + playerKey).set({
+                        name: playerName,
+                        score: smoki
+                    });
+                }
             }
+            updateUI();
         }
 
         function updateUI() {
@@ -647,17 +760,20 @@
                 cellElement.innerText = "💎";
                 safeClicks++;
                 
-                // Računanje multipliera
                 let remainingSafeBoxes = 25 - currentMinesCount - (safeClicks - 1);
                 let remainingBoxes = 25 - (safeClicks - 1);
                 let hitProb = remainingSafeBoxes / remainingBoxes;
                 
-                currentMultiplier *= (1 / hitProb) * 0.99; // 1% house edge
+                if (safeClicks === 1) {
+                    currentMultiplier = (1 / hitProb) * 0.99;
+                } else {
+                    currentMultiplier *= (1 / hitProb) * 0.99;
+                }
+                
                 let winAmount = currentMinesBet * currentMultiplier;
                 
                 document.getElementById("mines-info").innerText = `Multiplier: ${currentMultiplier.toFixed(2)}x | Mogući dobitak: ${winAmount.toFixed(2)} 🥜`;
 
-                // Ako otvori sve moguće
                 if(safeClicks === (25 - currentMinesCount)) {
                     cashoutMines();
                 }
@@ -759,7 +875,7 @@
 
                 scores.forEach((user, index) => {
                     let medal = index === 0 ? "🥇" : (index === 1 ? "🥈" : (index === 2 ? "🥉" : "🔹"));
-                    list.innerHTML += `<li><span>${medal} ${user.name}</span> <span>${user.score.toFixed(2)} 🥜</span></li>`;
+                    list.innerHTML += `<li><span>${medal} ${user.name}</span> <span>${(user.score || 0).toFixed(2)} 🥜</span></li>`;
                 });
             });
         }

@@ -4,10 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BRKAZ Birthday Party VIP Portal</title>
-    <!-- Google Fonts & Firebase SDKs -->
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     
     <style>
         :root {
@@ -175,42 +173,29 @@
             font-weight: 600;
         }
 
-        /* --- VOTING TABS (FOOD & DRINKS) --- */
-        .poll-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #090a0f;
-            padding: 15px 20px;
-            border-radius: 10px;
-            margin-bottom: 15px;
-            border: 1px solid #2a2d42;
-        }
-
-        .poll-info {
-            display: flex;
-            align-items: center;
+        /* --- FOOD & DRINK MENU CARDS --- */
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
             gap: 15px;
+            margin-top: 15px;
         }
 
-        .vote-count {
-            background: var(--accent);
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-weight: bold;
-            font-size: 0.9rem;
+        .menu-card {
+            background: #090a0f;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #2a2d42;
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #fff;
+            transition: 0.3s;
         }
 
-        .vote-btn {
-            width: auto;
-            padding: 8px 20px;
-            font-size: 0.9rem;
-            background: var(--cyan);
-            color: #000;
-        }
-
-        .vote-btn:hover {
-            box-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+        .menu-card:hover {
+            border-color: var(--cyan);
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
         }
 
         /* --- PEOPLE CALLED TAB --- */
@@ -277,8 +262,8 @@
         <!-- TABS MENU -->
         <nav>
             <button class="tab-btn active" onclick="switchTab('invite')">🎉 Invite</button>
-            <button class="tab-btn" onclick="switchTab('food')">🍕 Food Vote</button>
-            <button class="tab-btn" onclick="switchTab('drinks')">🥤 Drinks Vote</button>
+            <button class="tab-btn" onclick="switchTab('food')">🍕 Food</button>
+            <button class="tab-btn" onclick="switchTab('drinks')">🥤 Drinks</button>
             <button class="tab-btn" onclick="switchTab('people')">👥 People Called</button>
             <button class="tab-btn" onclick="switchTab('games')">🎮 Games</button>
         </nav>
@@ -293,30 +278,38 @@
             </div>
         </div>
 
-        <!-- TAB 2: FOOD VOTING -->
+        <!-- TAB 2: FOOD MENU -->
         <div id="tab-food" class="tab-content">
-            <h2>Vote for Party Food 🍕</h2>
-            <p style="color: var(--text-dim); margin-bottom: 20px;">Vote for what you want us to order/make!</p>
-            <div id="food-list">
-                <!-- Food options dynamically rendered -->
+            <h2>Food at the Party 🍕</h2>
+            <p style="color: var(--text-dim); margin-bottom: 15px;">Here is what we will be eating:</p>
+            <div class="menu-grid">
+                <div class="menu-card">🍕 Pizza</div>
+                <div class="menu-card">🍔 Burgers</div>
+                <div class="menu-card">🥩 Barbecue</div>
+                <div class="menu-card">🍿 Snacks & Chips</div>
+                <div class="menu-card">🎂 Birthday Cake</div>
             </div>
         </div>
 
-        <!-- TAB 3: DRINKS VOTING -->
+        <!-- TAB 3: DRINKS MENU -->
         <div id="tab-drinks" class="tab-content">
-            <h2>Vote for Party Drinks 🥤</h2>
-            <p style="color: var(--text-dim); margin-bottom: 20px;">Vote for your favorite drinks!</p>
-            <div id="drinks-list">
-                <!-- Drink options dynamically rendered -->
+            <h2>Drinks at the Party 🥤</h2>
+            <p style="color: var(--text-dim); margin-bottom: 15px;">Here is what will be available to drink:</p>
+            <div class="menu-grid">
+                <div class="menu-card">🥤 Coca-Cola & Sodas</div>
+                <div class="menu-card">⚡ Energy Drinks</div>
+                <div class="menu-card">🧃 Fruit Juices</div>
+                <div class="menu-card">🍹 Iced Tea / Lemonade</div>
+                <div class="menu-card">💧 Cold Water</div>
             </div>
         </div>
 
         <!-- TAB 4: PEOPLE CALLED -->
         <div id="tab-people" class="tab-content">
             <h2>Invited Guests 👑</h2>
-            <p style="color: var(--text-dim);">Everyone who was granted the token:</p>
+            <p style="color: var(--text-dim);">Everyone who was granted access:</p>
             <div class="people-grid" id="people-list">
-                <!-- Add invited guests here -->
+                <!-- Invited guests loaded from JS -->
             </div>
         </div>
 
@@ -350,35 +343,24 @@
 
     <script>
         // ======================= CONFIGURATION =======================
-        // 1. CHANGE YOUR SECRET TOKEN HERE:
+        // 1. YOUR SECRET TOKEN:
         const SECRET_TOKEN = "BRKAZ2026"; 
 
-        // 2. LIST OF PEOPLE CALLED (Edit this list!):
+        // 2. YOUR INVITED GUESTS LIST:
         const invitedPeople = [
-            "Adis","Armin","Dino","Damir","Dzafa","Vedo","Hasan","Ismar","Ishak"
+            "Adis", 
+            "Armin", 
+            "Dino", 
+            "Damir", 
+            "Dzafa", 
+            "Vedo", 
+            "Hasan", 
+            "Ismar", 
+            "Ishak"
         ];
-
-        // 3. FOOD & DRINK OPTIONS:
-        const defaultFood = ["Pizza 🍕", "Burgers 🍔", "Barbecue 🥩", "Tacos 🌮", "Snacks & Chips 🍿"];
-        const defaultDrinks = ["Coca Cola 🥤", "Energy Drinks (Monster/RedBull) ⚡", "Fruit Juices 🧃", "Iced Tea 🍹", "Water 💧"];
-
         // ==============================================================
 
-        // Firebase Config (For real-time sync across all devices)
-        // Note: Included default public database setup so votes sync globally!
-        const firebaseConfig = {
-            databaseURL: "https://brkaz-party-default-rtdb.firebaseio.com/"
-        };
-        
-        let db = null;
-        try {
-            firebase.initializeApp(firebaseConfig);
-            db = firebase.database();
-        } catch(e) {
-            console.log("Firebase fallback to localStorage");
-        }
-
-        // Check Token Logic
+        // Secret Token Validation
         function checkToken() {
             const input = document.getElementById("token-input").value.trim();
             const errorMsg = document.getElementById("error-msg");
@@ -386,13 +368,13 @@
             if (input === SECRET_TOKEN) {
                 document.getElementById("auth-screen").style.display = "none";
                 document.getElementById("main-content").style.display = "block";
-                initApp();
+                loadPeople();
             } else {
                 errorMsg.style.display = "block";
             }
         }
 
-        // Navigation Tabs Logic
+        // Navigation Tabs Switcher
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
@@ -401,69 +383,10 @@
             event.currentTarget.classList.add('active');
         }
 
-        // Initialize App Data
-        function initApp() {
-            // Render People
+        // Load invited guests into tab
+        function loadPeople() {
             const peopleContainer = document.getElementById("people-list");
             peopleContainer.innerHTML = invitedPeople.map(p => `<div class="person-card">👤 ${p}</div>`).join('');
-
-            // Setup Realtime Poll Sync
-            setupPoll('food', defaultFood, 'food-list');
-            setupPoll('drinks', defaultDrinks, 'drinks-list');
-        }
-
-        // Realtime Voting Engine
-        function setupPoll(type, options, containerId) {
-            const container = document.getElementById(containerId);
-
-            if (db) {
-                // Realtime Sync from Firebase
-                db.ref(`polls/${type}`).on('value', (snapshot) => {
-                    const data = snapshot.val() || {};
-                    renderPollUI(type, options, data, container);
-                });
-            } else {
-                // Fallback Local Storage
-                const localData = JSON.parse(localStorage.getItem(`poll_${type}`)) || {};
-                renderPollUI(type, options, localData, container);
-            }
-        }
-
-        function renderPollUI(type, options, pollData, container) {
-            container.innerHTML = options.map((item, index) => {
-                const votes = pollData[index] || 0;
-                return `
-                    <div class="poll-item">
-                        <div class="poll-info">
-                            <span>${item}</span>
-                            <span class="vote-count">${votes} Votes</span>
-                        </div>
-                        <button class="vote-btn" onclick="castVote('${type}', ${index})">VOTE</button>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function castVote(type, index) {
-            const hasVoted = localStorage.getItem(`voted_${type}`);
-            if (hasVoted) {
-                alert("You have already voted in this category!");
-                return;
-            }
-
-            if (db) {
-                db.ref(`polls/${type}/${index}`).transaction((currentVotes) => {
-                    return (currentVotes || 0) + 1;
-                });
-            } else {
-                let localData = JSON.parse(localStorage.getItem(`poll_${type}`)) || {};
-                localData[index] = (localData[index] || 0) + 1;
-                localStorage.setItem(`poll_${type}`, JSON.stringify(localData));
-                setupPoll(type, eval(`default${type.charAt(0).toUpperCase() + type.slice(1)}`), `${type}-list`);
-            }
-
-            localStorage.setItem(`voted_${type}`, 'true');
-            alert("Vote recorded!");
         }
     </script>
 </body>

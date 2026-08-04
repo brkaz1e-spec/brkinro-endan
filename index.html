@@ -23,40 +23,303 @@
             --text-dim: #a0a5c0;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
-        body { background-color: var(--bg-color); color: var(--text); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+        }
 
-        /* AUTH SCREEN */
-        #auth-screen { background: var(--card-bg); padding: 40px; border-radius: 20px; box-shadow: 0 0 30px rgba(255, 0, 85, 0.2); border: 1px solid rgba(255, 0, 85, 0.3); text-align: center; max-width: 400px; width: 100%; }
-        #auth-screen h1 { font-size: 2rem; margin-bottom: 20px; color: var(--accent); }
-        input[type="text"], input[type="number"] { width: 100%; padding: 15px; border-radius: 10px; border: 2px solid #2a2d42; background: #090a0f; color: #fff; font-size: 1rem; margin-bottom: 15px; outline: none; text-align: center; transition: 0.3s; }
-        input:focus { border-color: var(--accent); box-shadow: 0 0 10px var(--accent-glow); }
-        
-        button { width: 100%; padding: 15px; border-radius: 10px; border: none; background: linear-gradient(45deg, var(--accent), #ff5500); color: white; font-weight: bold; font-size: 1rem; cursor: pointer; transition: 0.3s; text-transform: uppercase; margin-bottom: 10px; }
-        button:hover { transform: translateY(-2px); box-shadow: 0 5px 15px var(--accent-glow); }
-        button:disabled { background: #333; color: #777; cursor: not-allowed; box-shadow: none; transform: none; }
-        
-        .error-msg { color: #ff3333; font-size: 0.9rem; display: none; }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
 
-        /* MAIN DASHBOARD */
-        #main-content { display: none; width: 100%; max-width: 800px; }
-        nav { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
-        .tab-btn { flex: 1; min-width: 100px; padding: 12px; background: var(--card-bg); border: 1px solid #2a2d42; color: var(--text-dim); border-radius: 10px; cursor: pointer; font-weight: 600; margin-bottom: 0; }
-        .tab-btn.active, .tab-btn:hover { background: var(--accent); color: white; border-color: var(--accent); box-shadow: 0 0 15px var(--accent-glow); }
-        .tab-content { display: none; background: var(--card-bg); padding: 30px; border-radius: 20px; border: 1px solid #2a2d42; animation: fadeIn 0.4s ease-in-out; }
-        .tab-content.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        /* --- AUTH SCREEN --- */
+        #auth-screen {
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 0 30px rgba(255, 0, 85, 0.2);
+            border: 1px solid rgba(255, 0, 85, 0.3);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
 
-        /* GAMBLING UI */
-        .currency-box { background: #090a0f; border: 2px solid var(--gold); color: var(--gold); padding: 10px 20px; border-radius: 10px; font-size: 1.2rem; font-weight: bold; display: flex; justify-content: space-between; margin-bottom: 20px; align-items: center; }
+        #auth-screen h1 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #2a2d42;
+            background: #090a0f;
+            color: #fff;
+            font-size: 1rem;
+            margin-bottom: 15px;
+            outline: none;
+            text-align: center;
+            transition: 0.3s;
+        }
+
+        input[type="text"]:focus, input[type="number"]:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            border-radius: 10px;
+            border: none;
+            background: linear-gradient(45deg, var(--accent), #ff5500);
+            color: white;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.3s;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px var(--accent-glow);
+        }
+
+        button:disabled {
+            background: #333;
+            color: #777;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+
+        .error-msg {
+            color: #ff3333;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        /* --- MAIN DASHBOARD --- */
+        #main-content {
+            display: none;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        nav {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            flex: 1;
+            min-width: 120px;
+            padding: 12px;
+            background: var(--card-bg);
+            border: 1px solid #2a2d42;
+            color: var(--text-dim);
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.3s;
+            text-align: center;
+            margin-bottom: 0;
+        }
+
+        .tab-btn.active, .tab-btn:hover {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        .tab-content {
+            display: none;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 20px;
+            border: 1px solid #2a2d42;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- INVITATION TAB --- */
+        .invite-box {
+            border-left: 5px solid var(--accent);
+            padding-left: 20px;
+            background: rgba(255, 0, 85, 0.05);
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .invite-box h2 {
+            color: var(--accent);
+            margin-bottom: 15px;
+        }
+
+        .invite-text {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            font-weight: 600;
+        }
+
+        /* --- FOOD & DRINK MENU CARDS --- */
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .menu-card {
+            background: #090a0f;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #2a2d42;
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #fff;
+            transition: 0.3s;
+        }
+
+        .menu-card:hover {
+            border-color: var(--cyan);
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+        }
+
+        /* --- PEOPLE CALLED TAB --- */
+        .people-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .person-card {
+            background: #090a0f;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid #2a2d42;
+            font-weight: 600;
+            color: var(--cyan);
+        }
+
+        /* --- GAMES TAB --- */
+        .category-title {
+            color: var(--cyan);
+            margin: 20px 0 10px 0;
+            border-bottom: 2px solid #2a2d42;
+            padding-bottom: 5px;
+            text-transform: uppercase;
+            font-size: 1.1rem;
+        }
+
+        .category-title:first-child {
+            margin-top: 0;
+        }
+
+        .games-list {
+            list-style: none;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 10px;
+        }
+
+        .games-list li {
+            background: #090a0f;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #2a2d42;
+            text-align: center;
+        }
+
+        /* --- GAMBLING UI --- */
+        .currency-box {
+            background: #090a0f;
+            border: 2px solid var(--gold);
+            color: var(--gold);
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            align-items: center;
+        }
         
-        .game-section { background: rgba(0,0,0,0.3); border: 1px solid #2a2d42; padding: 20px; border-radius: 15px; margin-bottom: 20px; }
-        .game-header { color: var(--cyan); margin-bottom: 15px; font-size: 1.3rem; text-transform: uppercase; border-bottom: 2px solid #2a2d42; padding-bottom: 5px; }
+        .game-section {
+            background: rgba(0,0,0,0.3);
+            border: 1px solid #2a2d42;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        .game-header {
+            color: var(--cyan);
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+            text-transform: uppercase;
+            border-bottom: 2px solid #2a2d42;
+            padding-bottom: 5px;
+        }
         
         /* MINES */
-        .mines-controls { display: flex; gap: 10px; margin-bottom: 15px; }
-        .mines-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; max-width: 300px; margin: 0 auto 15px auto; }
-        .mine-cell { aspect-ratio: 1; background: #2a2d42; border-radius: 5px; cursor: pointer; display: flex; justify-content: center; align-items: center; font-size: 1.5rem; transition: 0.2s; border: 2px solid #090a0f; }
+        .mines-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .mines-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 5px;
+            max-width: 300px;
+            margin: 0 auto 15px auto;
+        }
+
+        .mine-cell {
+            aspect-ratio: 1;
+            background: #2a2d42;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            transition: 0.2s;
+            border: 2px solid #090a0f;
+        }
+
         .mine-cell:hover { background: #3f4362; }
         .mine-cell.safe { background: #00ff88 !important; color: black; font-weight: bold; cursor: default; border-color: #00cc6a; }
         .mine-cell.bomb { background: #ff0055 !important; cursor: default; border-color: #cc0044; }
@@ -72,16 +335,11 @@
         .leaderboard-list { list-style: none; }
         .leaderboard-list li { display: flex; justify-content: space-between; background: #090a0f; padding: 10px 15px; margin-bottom: 5px; border-radius: 8px; border: 1px solid #2a2d42; }
         .leaderboard-list li:first-child { border-color: var(--gold); box-shadow: 0 0 10px rgba(255,183,0,0.3); color: var(--gold); font-weight: bold; }
-
-        /* BASIC STYLES FOR OTHER TABS */
-        .invite-box { border-left: 5px solid var(--accent); background: rgba(255, 0, 85, 0.05); padding: 20px; border-radius: 10px; }
-        .menu-grid, .people-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; margin-top: 15px; }
-        .menu-card, .person-card { background: #090a0f; padding: 15px; border-radius: 12px; border: 1px solid #2a2d42; text-align: center; font-weight: 600; }
     </style>
 </head>
 <body>
 
-    <!-- UNOS TAJNOG TOKENA -->
+    <!-- UNOS TAJNOG TOKENA I IMENA -->
     <div id="auth-screen">
         <h1>🔒 RESTRICTED PRISTUP</h1>
         <p style="color: var(--text-dim); margin-bottom: 20px;">Unesi token i ime da vidiš detalje rođendana</p>
@@ -93,6 +351,7 @@
 
     <!-- GLAVNI PORTAL -->
     <div id="main-content">
+        <!-- MENI KATEGORIJA -->
         <nav>
             <button class="tab-btn active" onclick="switchTab('invite')">🎉 Pozivnica</button>
             <button class="tab-btn" onclick="switchTab('food')">🍕 Hrana</button>
@@ -102,23 +361,88 @@
             <button class="tab-btn" onclick="switchTab('gambling')" style="color: var(--gold); border-color: var(--gold);">🎰 Kocka</button>
         </nav>
 
-        <!-- (Ostali tabovi ostaju slični, skratio sam ih za prostor) -->
+        <!-- KATEGORIJA 1: POZIVNICA -->
         <div id="tab-invite" class="tab-content active">
-            <div class="invite-box"><h2>ZVANIČNA POZIVNICA</h2><p>Pozvan si na rođendan 8. AVGUSTA U 13:00. Okupljanje je privatno.</p></div>
+            <div class="invite-box">
+                <h2>ZVANIČNA POZIVNICA</h2>
+                <p class="invite-text">
+                    pozvan si na cigansko okuplanje u mojoj kuci, ili ti ga moj rođendan 8. AVGUSTA U 13:00. okupljanje je privatno i nije ti dozvoljeno da nikome govoriš da si pozvan. i zakuni se Allahom.
+                </p>
+            </div>
         </div>
-        <div id="tab-food" class="tab-content"><h2>Hrana 🍕</h2><div class="menu-grid"><div class="menu-card">🍕 Pica</div><div class="menu-card">🍔 Hljeb sa salamom</div></div></div>
-        <div id="tab-drinks" class="tab-content"><h2>Piće 🥤</h2><div class="menu-grid"><div class="menu-card">🥤 Kola i fanta</div><div class="menu-card">🥃 Djedova rakija</div></div></div>
-        <div id="tab-people" class="tab-content"><h2>Pozvani</h2><div class="people-grid" id="people-list"></div></div>
-        <div id="tab-games" class="tab-content"><h2>Igre 🎮</h2><div class="menu-grid"><div class="menu-card">Fortnite</div><div class="menu-card">CS2</div></div></div>
 
-        <!-- KATEGORIJA 6: GAMBLING -->
+        <!-- KATEGORIJA 2: HRANA -->
+        <div id="tab-food" class="tab-content">
+            <h2>hrana 🍕</h2>
+            <p style="color: var(--text-dim); margin-bottom: 15px;">sta cemo hapit:</p>
+            <div class="menu-grid">
+                <div class="menu-card">🍕 ciganska Pica</div>
+                <div class="menu-card">🍔 hljeb sa salamom</div>
+                <div class="menu-card">🥩 suho meso i sir</div>
+                <div class="menu-card">🍿 svi najaci cipsevi na balkanu </div>
+                <div class="menu-card">🎂 godlijeva torta</div>
+            </div>
+        </div>
+
+        <!-- KATEGORIJA 3: PIĆE -->
+        <div id="tab-drinks" class="tab-content">
+            <h2>sokčine 🥤</h2>
+            <p style="color: var(--text-dim); margin-bottom: 15px;">napili se:</p>
+            <div class="menu-grid">
+                <div class="menu-card">🥤 ciganska kola i fanta</div>
+                <div class="menu-card">🧃 Voćni Sok breee</div>
+                <div class="menu-card">🍹 Ledeni Čaj Breee</div>
+                <div class="menu-card">💧 lEDENA Voda BREEE</div>
+                <div class="menu-card"> TEQUILA</div>
+                <div class="menu-card"> ABSOLUTE VODKA</div>
+                <div class="menu-card"> Djedova rakija</div>
+            </div>
+        </div>
+
+        <!-- KATEGORIJA 4: POZVANI -->
+        <div id="tab-people" class="tab-content">
+            <h2>Pozvani</h2>
+            <p style="color: var(--text-dim);">Svi pozvani robovi:</p>
+            <div class="people-grid" id="people-list">
+                <!-- Lista gostiju -->
+            </div>
+        </div>
+
+        <!-- KATEGORIJA 5: IGRE -->
+        <div id="tab-games" class="tab-content">
+            <h2>Dostupne Igre 🕹️</h2>
+            
+            <div class="category-title">🎴 tableIgre</div>
+            <ul class="games-list">
+                <li>UNO</li>
+            </ul>
+
+            <div class="category-title">🎮 Plejka 5</div>
+            <ul class="games-list">
+                <li>Fortnite</li>
+                <li>EA FC 24</li>
+            </ul>
+
+            <div class="category-title">💻 pc</div>
+            <ul class="games-list">
+                <li>CS2</li>
+                <li>CSGO</li>
+                <li>CS1.6</li>
+                <li>Minecraft</li>
+                <li>Granny</li>
+                <li>FNAF</li>
+                <li>Ostale Steam Igre</li>
+            </ul>
+        </div>
+
+        <!-- KATEGORIJA 6: KOCKA -->
         <div id="tab-gambling" class="tab-content">
             <div class="currency-box">
                 <span>TVOJ BALANS:</span>
                 <span id="smoki-balance">1000 🥜 Smoki</span>
             </div>
 
-            <!-- MINES GAME -->
+            <!-- MINES IGRA -->
             <div class="game-section">
                 <div class="game-header">💣 Mines</div>
                 <div class="mines-controls">
@@ -133,7 +457,7 @@
                 <button id="btn-mines-cashout" onclick="cashoutMines()" style="display:none; background: #00ff88; color: black;">Isplati</button>
             </div>
 
-            <!-- PLINKO GAME -->
+            <!-- PLINKO IGRA -->
             <div class="game-section">
                 <div class="game-header">🔻 Plinko</div>
                 <div class="mines-controls">
@@ -159,14 +483,27 @@
 
     <script>
         // ======================= PODEŠAVANJA =======================
-        const SECRET_TOKEN = "brkaz"; 
-        const invitedPeople = ["Adis", "Armin", "Dino", "Damir", "Dzafa", "Vedo", "Hasan", "Ismar", "Ishak"];
+        // 1. OVDJE PROMIJENI TAJNI TOKEN AKO ŽELIŠ:
+        const SECRET_TOKEN = "bday444962026bybrkaz"; 
+
+        // 2. LISTA POZVANIH GOSTIJU:
+        const invitedPeople = [
+            "Adis", 
+            "Armin", 
+            "Dino", 
+            "Damir", 
+            "Dzafa", 
+            "Vedo", 
+            "Hasan", 
+            "Ismar", 
+            "Ishak"
+        ];
         
         let playerName = "";
         let smoki = 1000;
 
         // ======================= FIREBASE SETUP =======================
-        // OVDJE ZALIJEPI SVOJ FIREBASE CONFIG KAD GA NAPRAVIŠ (Korak 3 u uputama)
+        // OVDJE ZALIJEPI SVOJ FIREBASE CONFIG KAD GA NAPRAVIŠ
         const firebaseConfig = {
             // apiKey: "TVOJ_API_KEY",
             // authDomain: "TVOJ_PROJECT.firebaseapp.com",
@@ -177,14 +514,14 @@
             // appId: "TVOJ_APP_ID"
         };
 
-        // Inicijalizacija baze (neće raditi dok ne uneseš config iznad i otkomentarišeš ga)
+        // Inicijalizacija baze
         let db;
         if(firebaseConfig.apiKey) {
             firebase.initializeApp(firebaseConfig);
             db = firebase.database();
         }
 
-        // ======================= AUTH & TABS =======================
+        // ======================= AUTH & TABOVI =======================
         function checkToken() {
             const input = document.getElementById("token-input").value.trim();
             const name = document.getElementById("name-input").value.trim();
@@ -195,10 +532,13 @@
                 document.getElementById("auth-screen").style.display = "none";
                 document.getElementById("main-content").style.display = "block";
                 
-                // Učitaj Smoki iz memorije pretraživača za ovog igrača
+                // Učitaj Smoki iz memorije
                 let savedSmoki = localStorage.getItem(`smoki_${playerName}`);
-                if(savedSmoki) smoki = parseFloat(savedSmoki);
-                else updateSmoki(1000); // Početni kapital
+                if(savedSmoki) {
+                    smoki = parseFloat(savedSmoki);
+                } else {
+                    updateSmoki(1000); 
+                }
 
                 updateUI();
                 loadPeople();
@@ -211,6 +551,7 @@
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            
             document.getElementById(`tab-${tabId}`).classList.add('active');
             event.currentTarget.classList.add('active');
         }
@@ -220,12 +561,12 @@
             peopleContainer.innerHTML = invitedPeople.map(p => `<div class="person-card">👤 ${p}</div>`).join('');
         }
 
+        // ======================= VALUTA (SMOKI) =======================
         function updateSmoki(amount) {
             smoki = Math.max(0, amount);
             localStorage.setItem(`smoki_${playerName}`, smoki);
             updateUI();
             
-            // Pošalji na Firebase Leaderboard
             if(db) {
                 db.ref('leaderboard/' + playerName).set({
                     name: playerName,
@@ -305,7 +646,7 @@
                 cellElement.innerText = "💎";
                 safeClicks++;
                 
-                // Računanje multipliera (Stake.com matematika)
+                // Računanje multipliera
                 let remainingSafeBoxes = 25 - currentMinesCount - (safeClicks - 1);
                 let remainingBoxes = 25 - (safeClicks - 1);
                 let hitProb = remainingSafeBoxes / remainingBoxes;
@@ -363,7 +704,6 @@
         }
 
         // ======================= PLINKO LOGIKA =======================
-        // Multiplikatori slični pravom Plinku sa 8 redova
         const plinkoMultipliers = [10, 3, 1.5, 0.5, 0.5, 1.5, 3, 10];
 
         function dropPlinko() {
@@ -379,11 +719,10 @@
             let path = "";
             let position = 0;
 
-            // Animacija pada
             let step = 0;
             let interval = setInterval(() => {
-                if(step < 7) { // 7 redova = 7 skretanja (pozicija 0 do 7)
-                    let direction = Math.random() > 0.5 ? 1 : 0; // 1=Desno, 0=Lijevo
+                if(step < 7) { 
+                    let direction = Math.random() > 0.5 ? 1 : 0; 
                     position += direction;
                     path += direction === 1 ? "↘ " : "↙ ";
                     resultBox.innerText = `Kuglica pada:\n${path}`;
@@ -398,7 +737,7 @@
                     resultBox.innerHTML = `Palo u rupu!<br><span style="color:${color}; font-size:2rem;">${finalMulti}x</span><br>Dobitak: ${winAmount.toFixed(2)} 🥜`;
                     btn.disabled = false;
                 }
-            }, 300); // svakih 300ms jedan korak
+            }, 300);
         }
 
         // ======================= LEADERBOARD FIREBASE =======================
@@ -413,7 +752,6 @@
                     return;
                 }
 
-                // Pretvori objekat u niz i sortiraj po score-u (opadajuće)
                 let scores = [];
                 for(let key in data) { scores.push(data[key]); }
                 scores.sort((a, b) => b.score - a.score);

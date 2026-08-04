@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BRKAZ Birthday Party VIP Portal</title>
+    <!-- Google Fonts & Firebase SDKs -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    
+    <style>
+        :root {
+            --bg-color: #0d0e15;
+            --card-bg: #161824;
+            --accent: #ff0055;
+            --accent-glow: #ff0055aa;
+            --cyan: #00f0ff;
+            --text: #ffffff;
+            --text-dim: #a0a5c0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* --- AUTH SCREEN --- */
+        #auth-screen {
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 0 30px rgba(255, 0, 85, 0.2);
+            border: 1px solid rgba(255, 0, 85, 0.3);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+
+        #auth-screen h1 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #2a2d42;
+            background: #090a0f;
+            color: #fff;
+            font-size: 1rem;
+            margin-bottom: 15px;
+            outline: none;
+            text-align: center;
+            transition: 0.3s;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            border-radius: 10px;
+            border: none;
+            background: linear-gradient(45deg, var(--accent), #ff5500);
+            color: white;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.3s;
+            text-transform: uppercase;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px var(--accent-glow);
+        }
+
+        .error-msg {
+            color: #ff3333;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        /* --- MAIN DASHBOARD --- */
+        #main-content {
+            display: none;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        nav {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            flex: 1;
+            min-width: 120px;
+            padding: 12px;
+            background: var(--card-bg);
+            border: 1px solid #2a2d42;
+            color: var(--text-dim);
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.3s;
+            text-align: center;
+        }
+
+        .tab-btn.active, .tab-btn:hover {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        .tab-content {
+            display: none;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 20px;
+            border: 1px solid #2a2d42;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- INVITATION TAB --- */
+        .invite-box {
+            border-left: 5px solid var(--accent);
+            padding-left: 20px;
+            background: rgba(255, 0, 85, 0.05);
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .invite-box h2 {
+            color: var(--accent);
+            margin-bottom: 15px;
+        }
+
+        .invite-text {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            font-weight: 600;
+        }
+
+        /* --- VOTING TABS (FOOD & DRINKS) --- */
+        .poll-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #090a0f;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #2a2d42;
+        }
+
+        .poll-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .vote-count {
+            background: var(--accent);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .vote-btn {
+            width: auto;
+            padding: 8px 20px;
+            font-size: 0.9rem;
+            background: var(--cyan);
+            color: #000;
+        }
+
+        .vote-btn:hover {
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+        }
+
+        /* --- PEOPLE CALLED TAB --- */
+        .people-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .person-card {
+            background: #090a0f;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid #2a2d42;
+            font-weight: 600;
+            color: var(--cyan);
+        }
+
+        /* --- GAMES TAB --- */
+        .category-title {
+            color: var(--cyan);
+            margin: 20px 0 10px 0;
+            border-bottom: 2px solid #2a2d42;
+            padding-bottom: 5px;
+            text-transform: uppercase;
+            font-size: 1.1rem;
+        }
+
+        .category-title:first-child {
+            margin-top: 0;
+        }
+
+        .games-list {
+            list-style: none;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 10px;
+        }
+
+        .games-list li {
+            background: #090a0f;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #2a2d42;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SECRET TOKEN AUTH SCREEN -->
+    <div id="auth-screen">
+        <h1>🔒 VIP ACCESS</h1>
+        <p style="color: var(--text-dim); margin-bottom: 20px;">Enter secret token to view party info</p>
+        <input type="text" id="token-input" placeholder="ENTER SECRET TOKEN">
+        <button onclick="checkToken()">UNLOCK ACCESS</button>
+        <p id="error-msg" class="error-msg">❌ Invalid Token! Ask BRKAZ for access.</p>
+    </div>
+
+    <!-- MAIN PARTY PORTAL -->
+    <div id="main-content">
+        <!-- TABS MENU -->
+        <nav>
+            <button class="tab-btn active" onclick="switchTab('invite')">🎉 Invite</button>
+            <button class="tab-btn" onclick="switchTab('food')">🍕 Food Vote</button>
+            <button class="tab-btn" onclick="switchTab('drinks')">🥤 Drinks Vote</button>
+            <button class="tab-btn" onclick="switchTab('people')">👥 People Called</button>
+            <button class="tab-btn" onclick="switchTab('games')">🎮 Games</button>
+        </nav>
+
+        <!-- TAB 1: INVITATION -->
+        <div id="tab-invite" class="tab-content active">
+            <div class="invite-box">
+                <h2>OFFICIAL INVITATION</h2>
+                <p class="invite-text">
+                    YOU HAVE BEEN INVITED TO BRKAZ BIRTHDAY PARTY ON 7TH AUGUST 13:00. The party will be private so you are not allowed to tell anyone that you have been invited.
+                </p>
+            </div>
+        </div>
+
+        <!-- TAB 2: FOOD VOTING -->
+        <div id="tab-food" class="tab-content">
+            <h2>Vote for Party Food 🍕</h2>
+            <p style="color: var(--text-dim); margin-bottom: 20px;">Vote for what you want us to order/make!</p>
+            <div id="food-list">
+                <!-- Food options dynamically rendered -->
+            </div>
+        </div>
+
+        <!-- TAB 3: DRINKS VOTING -->
+        <div id="tab-drinks" class="tab-content">
+            <h2>Vote for Party Drinks 🥤</h2>
+            <p style="color: var(--text-dim); margin-bottom: 20px;">Vote for your favorite drinks!</p>
+            <div id="drinks-list">
+                <!-- Drink options dynamically rendered -->
+            </div>
+        </div>
+
+        <!-- TAB 4: PEOPLE CALLED -->
+        <div id="tab-people" class="tab-content">
+            <h2>Invited Guests 👑</h2>
+            <p style="color: var(--text-dim);">Everyone who was granted the token:</p>
+            <div class="people-grid" id="people-list">
+                <!-- Add invited guests here -->
+            </div>
+        </div>
+
+        <!-- TAB 5: GAMES -->
+        <div id="tab-games" class="tab-content">
+            <h2>Available Games 🕹️</h2>
+            
+            <div class="category-title">🎴 Card Games</div>
+            <ul class="games-list">
+                <li>UNO</li>
+            </ul>
+
+            <div class="category-title">🎮 PlayStation 5</div>
+            <ul class="games-list">
+                <li>Fortnite</li>
+                <li>EA FC 24</li>
+            </ul>
+
+            <div class="category-title">💻 My PC</div>
+            <ul class="games-list">
+                <li>CS2</li>
+                <li>CSGO</li>
+                <li>CS1.6</li>
+                <li>Minecraft</li>
+                <li>Granny</li>
+                <li>FNAF</li>
+                <li>Other Steam Games</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // ======================= CONFIGURATION =======================
+        // 1. CHANGE YOUR SECRET TOKEN HERE:
+        const SECRET_TOKEN = "BRKAZ2026"; 
+
+        // 2. LIST OF PEOPLE CALLED (Edit this list!):
+        const invitedPeople = [
+            "Marko", "Stefan", "Nikola", "Aleksa", "Filip", "Luka", "You (Host)"
+        ];
+
+        // 3. FOOD & DRINK OPTIONS:
+        const defaultFood = ["Pizza 🍕", "Burgers 🍔", "Barbecue 🥩", "Tacos 🌮", "Snacks & Chips 🍿"];
+        const defaultDrinks = ["Coca Cola / Sodas 🥤", "Energy Drinks (Monster/RedBull) ⚡", "Fruit Juices 🧃", "Iced Tea 🍹", "Water 💧"];
+
+        // ==============================================================
+
+        // Firebase Config (For real-time sync across all devices)
+        // Note: Included default public database setup so votes sync globally!
+        const firebaseConfig = {
+            databaseURL: "https://brkaz-party-default-rtdb.firebaseio.com/"
+        };
+        
+        let db = null;
+        try {
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.database();
+        } catch(e) {
+            console.log("Firebase fallback to localStorage");
+        }
+
+        // Check Token Logic
+        function checkToken() {
+            const input = document.getElementById("token-input").value.trim();
+            const errorMsg = document.getElementById("error-msg");
+
+            if (input === SECRET_TOKEN) {
+                document.getElementById("auth-screen").style.display = "none";
+                document.getElementById("main-content").style.display = "block";
+                initApp();
+            } else {
+                errorMsg.style.display = "block";
+            }
+        }
+
+        // Navigation Tabs Logic
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+
+        // Initialize App Data
+        function initApp() {
+            // Render People
+            const peopleContainer = document.getElementById("people-list");
+            peopleContainer.innerHTML = invitedPeople.map(p => `<div class="person-card">👤 ${p}</div>`).join('');
+
+            // Setup Realtime Poll Sync
+            setupPoll('food', defaultFood, 'food-list');
+            setupPoll('drinks', defaultDrinks, 'drinks-list');
+        }
+
+        // Realtime Voting Engine
+        function setupPoll(type, options, containerId) {
+            const container = document.getElementById(containerId);
+
+            if (db) {
+                // Realtime Sync from Firebase
+                db.ref(`polls/${type}`).on('value', (snapshot) => {
+                    const data = snapshot.val() || {};
+                    renderPollUI(type, options, data, container);
+                });
+            } else {
+                // Fallback Local Storage
+                const localData = JSON.parse(localStorage.getItem(`poll_${type}`)) || {};
+                renderPollUI(type, options, localData, container);
+            }
+        }
+
+        function renderPollUI(type, options, pollData, container) {
+            container.innerHTML = options.map((item, index) => {
+                const votes = pollData[index] || 0;
+                return `
+                    <div class="poll-item">
+                        <div class="poll-info">
+                            <span>${item}</span>
+                            <span class="vote-count">${votes} Votes</span>
+                        </div>
+                        <button class="vote-btn" onclick="castVote('${type}', ${index})">VOTE</button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function castVote(type, index) {
+            const hasVoted = localStorage.getItem(`voted_${type}`);
+            if (hasVoted) {
+                alert("You have already voted in this category!");
+                return;
+            }
+
+            if (db) {
+                db.ref(`polls/${type}/${index}`).transaction((currentVotes) => {
+                    return (currentVotes || 0) + 1;
+                });
+            } else {
+                let localData = JSON.parse(localStorage.getItem(`poll_${type}`)) || {};
+                localData[index] = (localData[index] || 0) + 1;
+                localStorage.setItem(`poll_${type}`, JSON.stringify(localData));
+                setupPoll(type, eval(`default${type.charAt(0).toUpperCase() + type.slice(1)}`), `${type}-list`);
+            }
+
+            localStorage.setItem(`voted_${type}`, 'true');
+            alert("Vote recorded!");
+        }
+    </script>
+</body>
+</html>

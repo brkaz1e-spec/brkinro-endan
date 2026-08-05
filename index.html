@@ -601,7 +601,7 @@
                         const newUser = { name: name, pass: pass, score: 1000 };
                         db.ref('users/' + playerKey).set(newUser);
                         db.ref('leaderboard/' + playerKey).set({ name: name, score: 1000 });
-                        loginUser(name, 1000);
+                        loginUser(name, 10);
                     }
                 }).catch(() => showError("❌ Greška pri komunikaciji sa bazom!"));
 

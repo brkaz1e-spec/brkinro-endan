@@ -256,7 +256,7 @@
             color: var(--cyan);
         }
 
-        /* --- GAMES TAB --- */
+        /* --- GAMES TAB & LOCKED STYLES --- */
         .category-title {
             color: var(--cyan);
             margin: 20px 0 10px 0;
@@ -278,11 +278,61 @@
         }
 
         .games-list li {
+            position: relative;
             background: #090a0f;
             padding: 12px;
             border-radius: 8px;
             border: 1px solid #2a2d42;
             text-align: center;
+            overflow: hidden;
+        }
+
+        /* LOCKED OVERLAY CSS */
+        .games-list li.locked, .game-section.locked {
+            position: relative;
+            pointer-events: none;
+            user-select: none;
+        }
+
+        .games-list li.locked::after {
+            content: "🔒 CLOSED";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 8, 12, 0.88);
+            color: #ff0055;
+            font-weight: 800;
+            font-size: 0.85rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 8px;
+            letter-spacing: 1.5px;
+            border: 1px solid #ff0055;
+            box-sizing: border-box;
+        }
+
+        .game-section.locked::after {
+            content: "🔒 CLOSED";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(13, 14, 21, 0.92);
+            color: #ff0055;
+            font-weight: 800;
+            font-size: 1.8rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 15px;
+            letter-spacing: 2px;
+            border: 2px solid #ff0055;
+            z-index: 10;
+            backdrop-filter: blur(3px);
         }
 
         /* --- GAMBLING UI --- */
@@ -463,8 +513,9 @@
                 <li>CSGO</li>
                 <li>CS1.6</li>
                 <li>Minecraft</li>
-                <li>Granny</li>
-                <li>FNAF</li>
+                <!-- Dodaj 'locked' klasu za zaključavanje igre -->
+                <li class="locked">Granny</li>
+                <li class="locked">FNAF</li>
                 <li>Ostale Steam Igre</li>
             </ul>
         </div>
@@ -487,6 +538,9 @@
             <!-- MINES IGRA -->
             <div class="game-section">
                 <div class="game-header">💣 Mines</div>
+                <p style="color: var(--text-dim); font-size: 0.85rem; margin-bottom: 10px; text-align: center;">
+                    Limit uloga: 250,000 Smokija po mini (2 mine = 500K max)
+                </p>
                 <div class="mines-controls">
                     <input type="number" id="mines-bet" placeholder="Ulog (Smoki)" value="10" min="1">
                     <input type="number" id="mines-count" placeholder="Mina (1-24)" value="3" min="1" max="24">
@@ -632,7 +686,6 @@
                 }
 
                 if (!db) {
-                    // Fallback ako nema baze
                     localStorage.setItem(`user_${playerKey}`, JSON.stringify({ name, pass, score: 500, lastClaimTime: 0 }));
                     loginUser(name, 500, 0);
                     return;
@@ -684,7 +737,6 @@
             smoki = loadedScore;
             lastClaimTime = loadedClaimTime;
 
-            // Sačuvaj aktivnu sesiju da se ne moraš ponovo prijavljivati kod refresh-a
             localStorage.setItem('active_user_key', playerKey);
 
             document.getElementById("auth-screen").style.display = "none";
@@ -695,7 +747,6 @@
             loadPeople();
             if(db) loadLeaderboard();
 
-            // Pokreni brojač za minutni reward
             updateClaimTimerUI();
             if (timerInterval) clearInterval(timerInterval);
             timerInterval = setInterval(updateClaimTimerUI, 1000);
@@ -704,7 +755,7 @@
         function logout() {
             playerName = "";
             playerKey = "";
-            localStorage.removeItem('active_user_key'); // Briše aktivnu sesiju
+            localStorage.removeItem('active_user_key');
 
             if (timerInterval) clearInterval(timerInterval);
             document.getElementById("main-content").style.display = "none";
@@ -810,8 +861,14 @@
             let bet = parseFloat(document.getElementById("mines-bet").value);
             let mines = parseInt(document.getElementById("mines-count").value);
 
-            if(isNaN(bet) || bet <= 0 || bet > smoki) return alert("Nemaš dovoljno Smokija za ulog!");
             if(isNaN(mines) || mines < 1 || mines > 24) return alert("Broj mina mora biti od 1 do 24!");
+
+            // NOVO: Limit 250k po mini
+            let maxBet = mines * 250000;
+
+            if(isNaN(bet) || bet <= 0) return alert("Unesite ispravan ulog!");
+            if(bet > smoki) return alert("Nemaš dovoljno Smokija za ulog!");
+            if(bet > maxBet) return alert(`Maksimalni ulog za ${mines} mina/e je ${maxBet.toLocaleString()} Smokija (250,000 po mini)!`);
 
             updateSmoki(smoki - bet);
             currentMinesBet = bet;

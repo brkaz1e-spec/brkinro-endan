@@ -473,7 +473,15 @@
         <div id="tab-gambling" class="tab-content">
             <div class="currency-box">
                 <span>TVOJ BALANS (<span id="user-display-name"></span>):</span>
-                <span id="smoki-balance">1000 🥜 Smokija</span>
+                <span id="smoki-balance">500 🥜 Smokija</span>
+            </div>
+
+            <!-- MINUTNI REWARD -->
+            <div class="game-section" style="text-align: center;">
+                <div class="game-header">🎁 Besplatni Smoki</div>
+                <p style="color: var(--text-dim); margin-bottom: 10px;">Preuzmi 1 Smoki svake minute!</p>
+                <button id="btn-claim-reward" onclick="claimReward()" style="background: var(--gold); color: black;">PREUZMI 1 🥜 SMOKI</button>
+                <p id="claim-timer-text" style="color: var(--text-dim); font-size: 0.9rem; margin-top: 5px;"></p>
             </div>
 
             <!-- MINES IGRA -->
@@ -533,7 +541,9 @@
         
         let playerName = "";
         let playerKey = "";
-        let smoki = 1000;
+        let smoki = 500;
+        let lastClaimTime = 0;
+        let timerInterval = null;
         let authMode = "login"; // "login" ili "register"
 
         // ======================= FIREBASE SETUP =======================
@@ -572,7 +582,6 @@
             const name = document.getElementById("name-input").value.trim();
             const pass = document.getElementById("password-input").value.trim();
             const token = document.getElementById("token-input").value.trim();
-            const errorMsg = document.getElementById("error-msg");
 
             if (!name || !pass) {
                 showError("❌ Unesi korisničko ime i lozinku!");
@@ -589,8 +598,8 @@
 
                 if (!db) {
                     // Fallback ako nema baze
-                    localStorage.setItem(`user_${playerKey}`, JSON.stringify({ name, pass, score: 1000 }));
-                    loginUser(name, 1000);
+                    localStorage.setItem(`user_${playerKey}`, JSON.stringify({ name, pass, score: 500, lastClaimTime: 0 }));
+                    loginUser(name, 500, 0);
                     return;
                 }
 
@@ -598,10 +607,10 @@
                     if (snapshot.exists()) {
                         showError("❌ Korisničko ime je već zauzeto! Prijavi se.");
                     } else {
-                        const newUser = { name: name, pass: pass, score: 1000 };
+                        const newUser = { name: name, pass: pass, score: 500, lastClaimTime: 0 };
                         db.ref('users/' + playerKey).set(newUser);
-                        db.ref('leaderboard/' + playerKey).set({ name: name, score: 1000 });
-                        loginUser(name, 10);
+                        db.ref('leaderboard/' + playerKey).set({ name: name, score: 500 });
+                        loginUser(name, 500, 0);
                     }
                 }).catch(() => showError("❌ Greška pri komunikaciji sa bazom!"));
 
@@ -610,7 +619,7 @@
                     const local = localStorage.getItem(`user_${playerKey}`);
                     if (local) {
                         const uData = JSON.parse(local);
-                        if (uData.pass === pass) loginUser(uData.name, uData.score || 1000);
+                        if (uData.pass === pass) loginUser(uData.name, uData.score !== undefined ? uData.score : 500, uData.lastClaimTime || 0);
                         else showError("❌ Pogrešna lozinka!");
                     } else showError("❌ Korisnik ne postoji! Registruj se.");
                     return;
@@ -622,7 +631,11 @@
                     } else {
                         const userData = snapshot.val();
                         if (userData.pass === pass) {
-                            loginUser(userData.name || name, userData.score !== undefined ? parseFloat(userData.score) : 1000);
+                            loginUser(
+                                userData.name || name, 
+                                userData.score !== undefined ? parseFloat(userData.score) : 500,
+                                userData.lastClaimTime || 0
+                            );
                         } else {
                             showError("❌ Pogrešna lozinka!");
                         }
@@ -631,9 +644,11 @@
             }
         }
 
-        function loginUser(name, loadedScore) {
+        function loginUser(name, loadedScore, loadedClaimTime = 0) {
             playerName = name;
             smoki = loadedScore;
+            lastClaimTime = loadedClaimTime;
+
             document.getElementById("auth-screen").style.display = "none";
             document.getElementById("main-content").style.display = "block";
             document.getElementById("user-display-name").innerText = playerName;
@@ -641,11 +656,17 @@
             updateUI();
             loadPeople();
             if(db) loadLeaderboard();
+
+            // Pokreni brojač za minutni reward
+            updateClaimTimerUI();
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(updateClaimTimerUI, 1000);
         }
 
         function logout() {
             playerName = "";
             playerKey = "";
+            if (timerInterval) clearInterval(timerInterval);
             document.getElementById("main-content").style.display = "none";
             document.getElementById("auth-screen").style.display = "block";
             document.getElementById("name-input").value = "";
@@ -691,6 +712,49 @@
 
         function updateUI() {
             document.getElementById("smoki-balance").innerText = `${smoki.toFixed(2)} 🥜 Smoki`;
+        }
+
+        // ======================= MINUTNI REWARD LOGIKA =======================
+        function claimReward() {
+            const now = Date.now();
+            if (now - lastClaimTime >= 60000) {
+                lastClaimTime = now;
+                updateSmoki(smoki + 1);
+
+                if (playerKey) {
+                    localStorage.setItem(`lastClaim_${playerKey}`, lastClaimTime);
+                    if (db) {
+                        db.ref('users/' + playerKey + '/lastClaimTime').set(lastClaimTime);
+                    }
+                }
+                updateClaimTimerUI();
+            }
+        }
+
+        function updateClaimTimerUI() {
+            const btn = document.getElementById("btn-claim-reward");
+            const timerText = document.getElementById("claim-timer-text");
+            if (!btn) return;
+
+            const now = Date.now();
+            const elapsed = Math.floor((now - lastClaimTime) / 1000);
+            const remaining = 60 - elapsed;
+
+            if (remaining <= 0) {
+                btn.disabled = false;
+                btn.innerText = "🎁 PREUZMI 1 🥜 SMOKI";
+                btn.style.background = "var(--gold)";
+                btn.style.color = "black";
+                timerText.innerText = "Spremno za preuzimanje!";
+                timerText.style.color = "#00ff88";
+            } else {
+                btn.disabled = true;
+                btn.innerText = `⏳ ČEKAJ (${remaining}s)`;
+                btn.style.background = "#333";
+                btn.style.color = "#777";
+                timerText.innerText = `Sljedeći reward dostupan za ${remaining} sekundi.`;
+                timerText.style.color = "var(--text-dim)";
+            }
         }
 
         // ======================= MINES LOGIKA =======================

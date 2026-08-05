@@ -513,7 +513,6 @@
                 <li>CSGO</li>
                 <li>CS1.6</li>
                 <li>Minecraft</li>
-                <!-- Dodaj 'locked' klasu za zaključavanje igre -->
                 <li class="locked">Granny</li>
                 <li class="locked">FNAF</li>
                 <li>Ostale Steam Igre</li>
@@ -556,8 +555,11 @@
             <!-- PLINKO IGRA -->
             <div class="game-section">
                 <div class="game-header">🔻 Plinko</div>
+                <p style="color: var(--text-dim); font-size: 0.85rem; margin-bottom: 10px; text-align: center;">
+                    Maksimalni ulog: 1,000,000 Smokija
+                </p>
                 <div class="mines-controls">
-                    <input type="number" id="plinko-bet" placeholder="Ulog (Smoki)" value="10" min="1">
+                    <input type="number" id="plinko-bet" placeholder="Ulog (Smoki)" value="10" min="1" max="1000000">
                 </div>
                 <div class="plinko-multipliers">
                     <span style="color:#ff0055">10x</span><span style="color:#ff7700">3x</span><span style="color:#ffbb00">1.5x</span><span style="color:#00ff88">0.5x</span>
@@ -598,7 +600,7 @@
         let smoki = 500;
         let lastClaimTime = 0;
         let timerInterval = null;
-        let authMode = "login"; // "login" ili "register"
+        let authMode = "login";
 
         // ======================= FIREBASE SETUP =======================
         const firebaseConfig = {
@@ -648,9 +650,7 @@
                 } else {
                     localStorage.removeItem('active_user_key');
                 }
-            }).catch(() => {
-                // Ako zakaže konekcija, ostani na auth ekranu
-            });
+            }).catch(() => {});
         }
 
         // ======================= AUTH & NAVIGATION =======================
@@ -863,7 +863,6 @@
 
             if(isNaN(mines) || mines < 1 || mines > 24) return alert("Broj mina mora biti od 1 do 24!");
 
-            // NOVO: Limit 250k po mini
             let maxBet = mines * 250000;
 
             if(isNaN(bet) || bet <= 0) return alert("Unesite ispravan ulog!");
@@ -925,10 +924,12 @@
                 let remainingBoxes = 25 - (safeClicks - 1);
                 let hitProb = remainingSafeBoxes / remainingBoxes;
                 
+                const houseEdgePenalty = 0.80; 
+
                 if (safeClicks === 1) {
-                    currentMultiplier = (1 / hitProb) * 0.99;
+                    currentMultiplier = (1 / hitProb) * houseEdgePenalty;
                 } else {
-                    currentMultiplier *= (1 / hitProb) * 0.99;
+                    currentMultiplier *= (1 / hitProb) * houseEdgePenalty;
                 }
                 
                 let winAmount = currentMinesBet * currentMultiplier;
@@ -981,12 +982,14 @@
             setTimeout(() => { document.getElementById("mines-info").style.color = "var(--gold)"; }, 2000);
         }
 
-        // ======================= PLINKO LOGIKA =======================
+        // ======================= PLINKO LOGIKA (ORIGINAL MULTIPLIERS + 1M MAX BET) =======================
         const plinkoMultipliers = [10, 3, 1.5, 0.5, 0.5, 1.5, 3, 10];
 
         function dropPlinko() {
             let bet = parseFloat(document.getElementById("plinko-bet").value);
-            if(isNaN(bet) || bet <= 0 || bet > smoki) return alert("Nemaš dovoljno Smokija za ulog!");
+            if(isNaN(bet) || bet <= 0) return alert("Unesite ispravan ulog!");
+            if(bet > 1000000) return alert("Maksimalni ulog za Plinko je 1,000,000 Smokija!");
+            if(bet > smoki) return alert("Nemaš dovoljno Smokija za ulog!");
 
             updateSmoki(smoki - bet);
             
@@ -1011,7 +1014,7 @@
                     let winAmount = bet * finalMulti;
                     updateSmoki(smoki + winAmount);
                     
-                    let color = finalMulti > 1 ? "#00ff88" : "#ff3333";
+                    let color = finalMulti >= 1 ? "#00ff88" : "#ff3333";
                     resultBox.innerHTML = `Palo u rupu!<br><span style="color:${color}; font-size:2rem;">${finalMulti}x</span><br>Dobitak: ${winAmount.toFixed(2)} 🥜`;
                     btn.disabled = false;
                 }

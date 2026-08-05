@@ -564,6 +564,41 @@
             db = firebase.database();
         }
 
+        // AUTO-LOGIN PROVJERA NAKON UČITAVANJA STRANICE
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedKey = localStorage.getItem('active_user_key');
+            if (savedKey) {
+                autoLogin(savedKey);
+            }
+        });
+
+        function autoLogin(key) {
+            playerKey = key;
+            if (!db) {
+                const local = localStorage.getItem(`user_${key}`);
+                if (local) {
+                    const uData = JSON.parse(local);
+                    loginUser(uData.name, uData.score !== undefined ? uData.score : 500, uData.lastClaimTime || 0);
+                }
+                return;
+            }
+
+            db.ref('users/' + key).once('value').then(snapshot => {
+                if (snapshot.exists()) {
+                    const userData = snapshot.val();
+                    loginUser(
+                        userData.name || key,
+                        userData.score !== undefined ? parseFloat(userData.score) : 500,
+                        userData.lastClaimTime || 0
+                    );
+                } else {
+                    localStorage.removeItem('active_user_key');
+                }
+            }).catch(() => {
+                // Ako zakaže konekcija, ostani na auth ekranu
+            });
+        }
+
         // ======================= AUTH & NAVIGATION =======================
         function setAuthMode(mode) {
             authMode = mode;
@@ -649,6 +684,9 @@
             smoki = loadedScore;
             lastClaimTime = loadedClaimTime;
 
+            // Sačuvaj aktivnu sesiju da se ne moraš ponovo prijavljivati kod refresh-a
+            localStorage.setItem('active_user_key', playerKey);
+
             document.getElementById("auth-screen").style.display = "none";
             document.getElementById("main-content").style.display = "block";
             document.getElementById("user-display-name").innerText = playerName;
@@ -666,6 +704,8 @@
         function logout() {
             playerName = "";
             playerKey = "";
+            localStorage.removeItem('active_user_key'); // Briše aktivnu sesiju
+
             if (timerInterval) clearInterval(timerInterval);
             document.getElementById("main-content").style.display = "none";
             document.getElementById("auth-screen").style.display = "block";

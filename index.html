@@ -1,3 +1,5 @@
+--- START OF FILE text/plain ---
+
 <!DOCTYPE html>
 <html lang="bs">
 <head>
@@ -873,7 +875,7 @@
             currentMinesBet = bet;
             currentMinesCount = mines;
             safeClicks = 0;
-            currentMultiplier = 0;
+            currentMultiplier = 0.97; // 97% Return-To-Player (Standard 3% House Edge)
             minesActive = true;
             mineLocations = generateMines(mines);
 
@@ -922,15 +924,9 @@
                 
                 let remainingSafeBoxes = 25 - currentMinesCount - (safeClicks - 1);
                 let remainingBoxes = 25 - (safeClicks - 1);
-                let hitProb = remainingSafeBoxes / remainingBoxes;
                 
-                const houseEdgePenalty = 0.80; 
-
-                if (safeClicks === 1) {
-                    currentMultiplier = (1 / hitProb) * houseEdgePenalty;
-                } else {
-                    currentMultiplier *= (1 / hitProb) * houseEdgePenalty;
-                }
+                // Multiply current multiplier by standard probability odds
+                currentMultiplier *= (remainingBoxes / remainingSafeBoxes);
                 
                 let winAmount = currentMinesBet * currentMultiplier;
                 

@@ -388,12 +388,12 @@
     <div id="main-content">
         <!-- MENI KATEGORIJA -->
         <nav>
-            <button class="tab-btn active" onclick="switchTab('invite')">🎉 Pozivnica</button>
-            <button class="tab-btn" onclick="switchTab('food')">🍕 Hrana</button>
-            <button class="tab-btn" onclick="switchTab('drinks')">🥤 Piće</button>
-            <button class="tab-btn" onclick="switchTab('people')">👥 Robovi</button>
-            <button class="tab-btn" onclick="switchTab('games')">🎮 Igre</button>
-            <button class="tab-btn" onclick="switchTab('gambling')" style="color: var(--gold); border-color: var(--gold);">🎰 Kocka</button>
+            <button class="tab-btn active" onclick="switchTab(event, 'invite')">🎉 Pozivnica</button>
+            <button class="tab-btn" onclick="switchTab(event, 'food')">🍕 Hrana</button>
+            <button class="tab-btn" onclick="switchTab(event, 'drinks')">🥤 Piće</button>
+            <button class="tab-btn" onclick="switchTab(event, 'people')">👥 Robovi</button>
+            <button class="tab-btn" onclick="switchTab(event, 'games')">🎮 Igre</button>
+            <button class="tab-btn" onclick="switchTab(event, 'gambling')" style="color: var(--gold); border-color: var(--gold);">🎰 Kocka</button>
             <button class="tab-btn" onclick="logout()" style="background: #250912; color: #ff3355; border-color: #ff0055;">🚪 Odjava</button>
         </nav>
 
@@ -508,7 +508,7 @@
             <div class="game-section">
                 <div class="game-header">🔻 Plinko</div>
                 <p style="color: var(--text-dim); font-size: 0.85rem; margin-bottom: 10px; text-align: center;">
-                    Maksimalni ulog: 200,000 Smokija
+                    Maksimalni ulog: 1,000,000 Smokija
                 </p>
                 <div class="mines-controls">
                     <input type="number" id="plinko-bet" placeholder="Ulog (Smoki)" value="10" min="1" max="1000000">
@@ -566,10 +566,14 @@
             measurementId: "G-WSGJZNFGL5"
         };
 
-        let db;
-        if(firebaseConfig.apiKey) {
-            firebase.initializeApp(firebaseConfig);
-            db = firebase.database();
+        let db = null;
+        try {
+            if (typeof firebase !== 'undefined' && firebaseConfig.apiKey) {
+                firebase.initializeApp(firebaseConfig);
+                db = firebase.database();
+            }
+        } catch(e) {
+            console.warn("Firebase NIJE inicijalizovan:", e);
         }
 
         // AUTO-LOGIN PROVJERA NAKON UČITAVANJA STRANICE
@@ -724,12 +728,16 @@
             err.style.display = "block";
         }
 
-        function switchTab(tabId) {
+        function switchTab(evt, tabId) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             
-            document.getElementById(`tab-${tabId}`).classList.add('active');
-            event.currentTarget.classList.add('active');
+            const targetTab = document.getElementById(`tab-${tabId}`);
+            if (targetTab) targetTab.classList.add('active');
+
+            if (evt && evt.currentTarget) {
+                evt.currentTarget.classList.add('active');
+            }
         }
 
         function loadPeople() {
@@ -814,7 +822,7 @@
             for (let i = 0; i < clicks; i++) {
                 mult *= (25 - i) / (25 - minesCount - i);
             }
-            let rtp = 0.99; // 99% Return-To-Player (1% House Edge)
+            let rtp = 0.99; // 99% Return-To-Player
             return Math.max(1.01, mult * rtp);
         }
 
@@ -935,7 +943,7 @@
         function dropPlinko() {
             let bet = parseFloat(document.getElementById("plinko-bet").value);
             if(isNaN(bet) || bet <= 0) return alert("Unesite ispravan ulog!");
-            if(bet > 200000) return alert("Maksimalni ulog za Plinko je 1,000,000 Smokija!");
+            if(bet > 1000000) return alert("Maksimalni ulog za Plinko je 1,000,000 Smokija!");
             if(bet > smoki) return alert("Nemaš dovoljno Smokija za ulog!");
 
             updateSmoki(smoki - bet);
@@ -970,9 +978,11 @@
 
         // ======================= LEADERBOARD FIREBASE =======================
         function loadLeaderboard() {
+            if (!db) return;
             db.ref('leaderboard').on('value', (snapshot) => {
                 const data = snapshot.val();
                 let list = document.getElementById("leaderboard");
+                if (!list) return;
                 list.innerHTML = "";
                 
                 if(!data) {
@@ -988,6 +998,8 @@
                     let medal = index === 0 ? "🥇" : (index === 1 ? "🥈" : (index === 2 ? "🥉" : "🔹"));
                     list.innerHTML += `<li><span>${medal} ${user.name}</span> <span>${(user.score || 0).toFixed(2)} 🥜</span></li>`;
                 });
+            }, (err) => {
+                console.warn("Leaderboard error:", err);
             });
         }
     </script>

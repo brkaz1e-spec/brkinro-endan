@@ -508,7 +508,7 @@
             <div class="game-section">
                 <div class="game-header">🔻 Plinko</div>
                 <p style="color: var(--text-dim); font-size: 0.85rem; margin-bottom: 10px; text-align: center;">
-                    Maksimalni ulog: 1,000,000 Smokija
+                    Maksimalni ulog: 200,000 Smokija
                 </p>
                 <div class="mines-controls">
                     <input type="number" id="plinko-bet" placeholder="Ulog (Smoki)" value="10" min="1" max="1000000">
@@ -935,7 +935,7 @@
         function dropPlinko() {
             let bet = parseFloat(document.getElementById("plinko-bet").value);
             if(isNaN(bet) || bet <= 0) return alert("Unesite ispravan ulog!");
-            if(bet > 1000000) return alert("Maksimalni ulog za Plinko je 1,000,000 Smokija!");
+            if(bet > 200000) return alert("Maksimalni ulog za Plinko je 1,000,000 Smokija!");
             if(bet > smoki) return alert("Nemaš dovoljno Smokija za ulog!");
 
             updateSmoki(smoki - bet);

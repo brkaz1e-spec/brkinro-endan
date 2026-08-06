@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Brkin Rođendan 2026</title>
+    <title>Brkin Rođendan 2026 - CS:GO Edition</title>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
     
@@ -293,7 +293,7 @@
             overflow: hidden;
         }
 
-        /* --- GAMBLING & INVENTORY UI --- */
+        /* --- GAMBLING & CASES UI --- */
         .currency-box {
             background: #090a0f;
             border: 2px solid var(--gold);
@@ -325,6 +325,141 @@
             text-transform: uppercase;
             border-bottom: 2px solid #2a2d42;
             padding-bottom: 5px;
+        }
+
+        /* CASES GRID & CARDS */
+        .cases-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .case-card {
+            background: #090a0f;
+            border: 2px solid #2a2d42;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            transition: 0.3s;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .case-card:hover {
+            border-color: var(--gold);
+            box-shadow: 0 0 15px rgba(255, 183, 0, 0.2);
+        }
+
+        .case-img {
+            width: 100%;
+            height: 110px;
+            object-fit: contain;
+            margin: 10px 0;
+            filter: drop-shadow(0 0 8px rgba(255,255,255,0.1));
+        }
+
+        .case-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .case-costs {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            margin-bottom: 10px;
+        }
+
+        .case-btn-group {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .case-btn-group button {
+            flex: 1;
+            padding: 8px 5px;
+            font-size: 0.8rem;
+            margin-bottom: 0;
+        }
+
+        /* CSGO OPENING ROLLER */
+        .case-spinner-container {
+            position: relative;
+            width: 100%;
+            height: 140px;
+            background: #050608;
+            border: 2px solid var(--gold);
+            border-radius: 12px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .case-pointer {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 100%;
+            background: #ff0055;
+            box-shadow: 0 0 10px #ff0055, 0 0 20px #ff0055;
+            z-index: 10;
+        }
+
+        .case-pointer::before {
+            content: '▼';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #ff0055;
+            font-size: 12px;
+        }
+
+        .case-reel {
+            display: flex;
+            position: absolute;
+            left: 0;
+            top: 10px;
+            height: 120px;
+            will-change: transform;
+        }
+
+        .reel-item {
+            width: 110px;
+            height: 115px;
+            background: #11131f;
+            border: 1px solid #2a2d42;
+            border-bottom: 4px solid var(--rarity-mil-spec);
+            border-radius: 8px;
+            margin-right: 10px;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 5px;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        .reel-item img {
+            width: 70px;
+            height: 55px;
+            object-fit: contain;
+        }
+
+        .reel-item .item-name {
+            font-size: 0.7rem;
+            font-weight: bold;
+            margin-top: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 100%;
         }
 
         /* INVENTORY GRID */
@@ -528,6 +663,30 @@
                 <p id="claim-timer-text" style="color: var(--text-dim); font-size: 0.9rem; margin-top: 5px;"></p>
             </div>
 
+            <!-- CS:GO CASES SEKCIJA -->
+            <div class="game-section">
+                <div class="game-header">📦 CS:GO Kutije (Cases)</div>
+                <p style="color: var(--text-dim); font-size: 0.9rem; margin-bottom: 15px;">
+                    Kupi kutiju i ključ, zavrti CS:GO roler i osvoji skupe skinove!
+                </p>
+
+                <!-- SPINNER CONTAINER -->
+                <div class="case-spinner-container">
+                    <div class="case-pointer"></div>
+                    <div class="case-reel" id="case-reel">
+                        <!-- Reel items se ubacuju dinamički -->
+                    </div>
+                </div>
+                <div id="case-status-text" style="text-align: center; font-weight: bold; color: var(--gold); margin-bottom: 15px; min-height: 24px;">
+                    Izaberi kutiju ispod za otvaranje!
+                </div>
+
+                <!-- CASES LIST GRID -->
+                <div class="cases-grid" id="cases-list-grid">
+                    <!-- Dinamički renderovane kutije -->
+                </div>
+            </div>
+
             <!-- MINES IGRA -->
             <div class="game-section">
                 <div class="game-header">💣 Mines</div>
@@ -576,10 +735,7 @@
         <div id="tab-inventory" class="tab-content">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
                 <h2>🎒 Tvoj Inventar</h2>
-                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                    <button onclick="buyRandomItem()" style="width: auto; padding: 10px 15px; background: linear-gradient(45deg, #00ff88, #00b0ff); color: black; font-size: 0.85rem;">🎁 KUPI NASUMIČAN SKIN (100 🥜)</button>
-                    <button onclick="sellAllItems()" style="width: auto; padding: 10px 15px; background: #ff5500; font-size: 0.85rem;">💰 PRODAJ SVE SKINOVE</button>
-                </div>
+                <button onclick="sellAllItems()" style="width: auto; padding: 10px 20px; background: #ff5500; font-size: 0.9rem;">💰 PRODAJ SVE SKINOVE</button>
             </div>
 
             <div class="currency-box" style="margin-bottom: 20px;">
@@ -603,25 +759,51 @@
 
         // --- ITEMS REPOSITORY (items/itemdata) ---
         const ITEM_DATA = {
-            "p250_sanddune": { id: "p250_sanddune", name: "P250 | Sand Dune", rarity: "mil-spec", color: "#4b69ff", price: 15, icon: "items/icons/p250_sanddune.png" },
-            "ak47_safari": { id: "ak47_safari", name: "AK-47 | Safari Mesh", rarity: "mil-spec", color: "#4b69ff", price: 25, icon: "items/icons/ak47_safari.png" },
-            "m4a4_griffin": { id: "m4a4_griffin", name: "M4A4 | Griffin", rarity: "restricted", color: "#8847ff", price: 80, icon: "items/icons/m4a4_griffin.png" },
-            "awp_atheris": { id: "awp_atheris", name: "AWP | Atheris", rarity: "restricted", color: "#8847ff", price: 120, icon: "items/icons/awp_atheris.png" },
-            "ak47_redline": { id: "ak47_redline", name: "AK-47 | Redline", rarity: "classified", color: "#d32ce6", price: 350, icon: "items/icons/ak47_redline.png" },
-            "deagle_codered": { id: "deagle_codered", name: "Desert Eagle | Code Red", rarity: "classified", color: "#d32ce6", price: 500, icon: "items/icons/deagle_codered.png" },
-            "awp_asiimov": { id: "awp_asiimov", name: "AWP | Asiimov", rarity: "covert", color: "#eb4b4b", price: 1200, icon: "items/icons/awp_asiimov.png" },
-            "ak47_empress": { id: "ak47_empress", name: "AK-47 | The Empress", rarity: "covert", color: "#eb4b4b", price: 1800, icon: "items/icons/ak47_empress.png" },
-            "karambit_doppler": { id: "karambit_doppler", name: "★ Karambit | Doppler", rarity: "gold", color: "#ffd700", price: 5000, icon: "items/icons/karambit_doppler.png" },
-            "butterfly_fade": { id: "butterfly_fade", name: "★ Butterfly Knife | Fade", rarity: "gold", color: "#ffd700", price: 10000, icon: "items/icons/butterfly_fade.png" }
+        ////////////////////// CHEETO CASE
+            "classic_cheeto": { id: "classic_cheeto", name: "Cheeto", rarity: "mil-spec", color: "#4b69ff", price: 8000, icon: "items/icons/classic_cheeto.png" },
+         
+            "cheeto_flamin": { id: "cheeto_flamin", name: "Cheeto | Flaming", rarity: "restricted", color: "#8847ff", price: 40000, icon: "items/icons/cheeto_flamin.png" },
+       
+            "ocean_cheeto": { id: "ocean_cheeto", name: "Cheeto | Ocean", rarity: "classified", color: "#d32ce6", price: 290000, icon: "items/icons/ocean_cheeto.png" },
+        
+            "gween_cheeto": { id: "gween_cheeto", name: "Cheeto | Gween Soda", rarity: "covert", color: "#eb4b4b", price: 1890000, icon: "items/icons/gween_cheeto.png" },
+            
+            "goldflip_cheeto": { id: "goldflip_cheeto", name: "★ Cheeto | Gold Flip", rarity: "gold", color: "#ffd700", price: 4000000 , icon: "items/icons/goldflip_cheeto.png" }
+           ////////////////////// CHEETO CASE
         };
+
+        // --- CASES REPOSITORY (cases/casedata) ---
+        const CASE_DATA = [
+            {
+                id: "cheeto_case",
+                name: "📦 Cheeto Case",
+                price: 15000,
+                keyPrice: 10000,
+                icon: "cases/caseicons/cheeto_case.png",
+                items: [
+                    { id: "classic_cheeto", weight: 50 }, // one in 2
+                    { id: "cheeto_flamin", weight: 12.5 }, // one in 8
+                    { id: "ocean_cheeto", weight: 5 }, // one in 20
+                    { id: "gween_cheeto", weight: 1.47 }, // one in 70
+                    { id: "goldflip_cheeto", weight: 0.01 } // one in 100
+                ]
+            },
+       
+            
+      
+        ];
 
         let playerName = "";
         let playerKey = "";
         let smoki = 500;
         let inventory = []; // Array of { instanceId, itemId, acquiredAt }
+        let ownedCases = {}; // e.g. { "ciganski_case": 2 }
+        let ownedKeys = {};  // e.g. { "ciganski_case": 1 }
+        let casesOpenedCount = 0; // Za baiting luck mehanizam
         let lastClaimTime = 0;
         let timerInterval = null;
         let authMode = "login";
+        let isSpinningCase = false;
 
         // ======================= FIREBASE SETUP =======================
         const firebaseConfig = {
@@ -647,6 +829,7 @@
 
         // AUTO-LOGIN PROVJERA
         window.addEventListener('DOMContentLoaded', () => {
+            renderCasesUI();
             const savedKey = localStorage.getItem('active_user_key');
             if (savedKey) autoLogin(savedKey);
         });
@@ -657,7 +840,7 @@
                 const local = localStorage.getItem(`user_${key}`);
                 if (local) {
                     const uData = JSON.parse(local);
-                    loginUser(uData.name, uData.score !== undefined ? uData.score : 500, uData.lastClaimTime || 0, uData.inventory || []);
+                    loginUser(uData.name, uData.score !== undefined ? uData.score : 500, uData.lastClaimTime || 0, uData.inventory || [], uData.ownedCases || {}, uData.ownedKeys || {}, uData.casesOpenedCount || 0);
                 }
                 return;
             }
@@ -669,7 +852,10 @@
                         userData.name || key,
                         userData.score !== undefined ? parseFloat(userData.score) : 500,
                         userData.lastClaimTime || 0,
-                        userData.inventory || []
+                        userData.inventory || [],
+                        userData.ownedCases || {},
+                        userData.ownedKeys || {},
+                        userData.casesOpenedCount || 0
                     );
                 } else {
                     localStorage.removeItem('active_user_key');
@@ -710,8 +896,8 @@
                 }
 
                 if (!db) {
-                    localStorage.setItem(`user_${playerKey}`, JSON.stringify({ name, pass, score: 500, lastClaimTime: 0, inventory: [] }));
-                    loginUser(name, 500, 0, []);
+                    localStorage.setItem(`user_${playerKey}`, JSON.stringify({ name, pass, score: 500, lastClaimTime: 0, inventory: [], ownedCases: {}, ownedKeys: {}, casesOpenedCount: 0 }));
+                    loginUser(name, 500, 0, [], {}, {}, 0);
                     return;
                 }
 
@@ -719,10 +905,10 @@
                     if (snapshot.exists()) {
                         showError("❌ Korisničko ime je već zauzeto! Prijavi se.");
                     } else {
-                        const newUser = { name: name, pass: pass, score: 500, lastClaimTime: 0, inventory: [] };
+                        const newUser = { name: name, pass: pass, score: 500, lastClaimTime: 0, inventory: [], ownedCases: {}, ownedKeys: {}, casesOpenedCount: 0 };
                         db.ref('users/' + playerKey).set(newUser);
                         db.ref('leaderboard/' + playerKey).set({ name: name, score: 500 });
-                        loginUser(name, 500, 0, []);
+                        loginUser(name, 500, 0, [], {}, {}, 0);
                     }
                 }).catch(() => showError("❌ Greška pri komunikaciji sa bazom!"));
 
@@ -731,7 +917,7 @@
                     const local = localStorage.getItem(`user_${playerKey}`);
                     if (local) {
                         const uData = JSON.parse(local);
-                        if (uData.pass === pass) loginUser(uData.name, uData.score !== undefined ? uData.score : 500, uData.lastClaimTime || 0, uData.inventory || []);
+                        if (uData.pass === pass) loginUser(uData.name, uData.score !== undefined ? uData.score : 500, uData.lastClaimTime || 0, uData.inventory || [], uData.ownedCases || {}, uData.ownedKeys || {}, uData.casesOpenedCount || 0);
                         else showError("❌ Pogrešna lozinka!");
                     } else showError("❌ Korisnik ne postoji! Registruj se.");
                     return;
@@ -747,7 +933,10 @@
                                 userData.name || name, 
                                 userData.score !== undefined ? parseFloat(userData.score) : 500,
                                 userData.lastClaimTime || 0,
-                                userData.inventory || []
+                                userData.inventory || [],
+                                userData.ownedCases || {},
+                                userData.ownedKeys || {},
+                                userData.casesOpenedCount || 0
                             );
                         } else {
                             showError("❌ Pogrešna lozinka!");
@@ -757,11 +946,14 @@
             }
         }
 
-        function loginUser(name, loadedScore, loadedClaimTime = 0, loadedInv = []) {
+        function loginUser(name, loadedScore, loadedClaimTime = 0, loadedInv = [], loadedCases = {}, loadedKeys = {}, loadedOpened = 0) {
             playerName = name;
             smoki = loadedScore;
             lastClaimTime = loadedClaimTime;
             inventory = Array.isArray(loadedInv) ? loadedInv : [];
+            ownedCases = loadedCases || {};
+            ownedKeys = loadedKeys || {};
+            casesOpenedCount = loadedOpened || 0;
 
             localStorage.setItem('active_user_key', playerKey);
 
@@ -771,6 +963,7 @@
 
             updateUI();
             renderInventoryUI();
+            renderCasesUI();
             loadPeople();
             if(db) loadLeaderboard();
 
@@ -829,6 +1022,9 @@
             const userDataToSave = {
                 score: smoki,
                 inventory: inventory,
+                ownedCases: ownedCases,
+                ownedKeys: ownedKeys,
+                casesOpenedCount: casesOpenedCount,
                 lastClaimTime: lastClaimTime
             };
 
@@ -841,6 +1037,9 @@
             if (db) {
                 db.ref('users/' + playerKey + '/score').set(smoki);
                 db.ref('users/' + playerKey + '/inventory').set(inventory);
+                db.ref('users/' + playerKey + '/ownedCases').set(ownedCases);
+                db.ref('users/' + playerKey + '/ownedKeys').set(ownedKeys);
+                db.ref('users/' + playerKey + '/casesOpenedCount').set(casesOpenedCount);
                 db.ref('leaderboard/' + playerKey).set({
                     name: playerName,
                     score: smoki
@@ -862,6 +1061,193 @@
             return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
         }
 
+        // ======================= CS:GO CASES LOGIKA & ANIMACIJA =======================
+        function renderCasesUI() {
+            const grid = document.getElementById("cases-list-grid");
+            if (!grid) return;
+
+            grid.innerHTML = CASE_DATA.map(c => {
+                const caseCount = ownedCases[c.id] || 0;
+                const keyCount = ownedKeys[c.id] || 0;
+                return `
+                    <div class="case-card">
+                        <div class="case-title">${c.name}</div>
+                        <img class="case-img" src="${c.icon}" onerror="this.src='${getSVGPlaceholder(c.name, '#ffb700')}'" alt="${c.name}">
+                        <div class="case-costs">
+                            Cijena: <b>${c.price} 🥜</b> | Ključ: <b>${c.keyPrice} 🥜</b><br>
+                            Imaš: 📦 <b>${caseCount}</b> | 🗝️ <b>${keyCount}</b>
+                        </div>
+                        <div class="case-btn-group">
+                            <button onclick="buyCase('${c.id}')">Kupi Kutiju</button>
+                            <button onclick="buyKey('${c.id}')">Kupi Ključ</button>
+                        </div>
+                        <button onclick="openCase('${c.id}')" style="margin-top:8px; background: linear-gradient(45deg, #00ff88, #00b0ff); color:black;" ${caseCount > 0 && keyCount > 0 ? '' : 'disabled'}>
+                            OTVORI KUTIJU
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function buyCase(caseId) {
+            const c = CASE_DATA.find(item => item.id === caseId);
+            if (!c) return;
+            if (smoki < c.price) return alert("Nemaš dovoljno Smokija za kutiju!");
+
+            updateSmoki(smoki - c.price);
+            ownedCases[caseId] = (ownedCases[caseId] || 0) + 1;
+            saveUserData();
+            renderCasesUI();
+        }
+
+        function buyKey(caseId) {
+            const c = CASE_DATA.find(item => item.id === caseId);
+            if (!c) return;
+            if (smoki < c.keyPrice) return alert("Nemaš dovoljno Smokija za ključ!");
+
+            updateSmoki(smoki - c.keyPrice);
+            ownedKeys[caseId] = (ownedKeys[caseId] || 0) + 1;
+            saveUserData();
+            renderCasesUI();
+        }
+
+        // ZVUK KLIKA PRI OKRETANJU
+        function playClickSound() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(600, ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(100, ctx.currentTime + 0.03);
+                gain.gain.setValueAtTime(0.15, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.03);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.03);
+            } catch(e) {}
+        }
+
+        // SREĆA MEHANIZAM (First 2 cases are baited with epic luck!)
+        function chooseWinningItem(caseObj) {
+            const items = caseObj.items;
+
+            // BAITING LOGIK: Prva dva otvaranja daju znatno bolji skin (Classified, Covert ili Gold)
+            if (casesOpenedCount < 2) {
+                const highRarityItems = items.filter(it => {
+                    const itemDef = ITEM_DATA[it.id];
+                    return itemDef && (itemDef.rarity === 'classified' || itemDef.rarity === 'covert' || itemDef.rarity === 'gold');
+                });
+                if (highRarityItems.length > 0) {
+                    const picked = highRarityItems[Math.floor(Math.random() * highRarityItems.length)];
+                    return ITEM_DATA[picked.id];
+                }
+            }
+
+            // Normalna šansa sa težinama
+            const totalWeight = items.reduce((sum, i) => sum + i.weight, 0);
+            let randomNum = Math.random() * totalWeight;
+            
+            for (let i = 0; i < items.length; i++) {
+                if (randomNum < items[i].weight) {
+                    return ITEM_DATA[items[i].id];
+                }
+                randomNum -= items[i].weight;
+            }
+            return ITEM_DATA[items[0].id];
+        }
+
+        function openCase(caseId) {
+            if (isSpinningCase) return;
+            const c = CASE_DATA.find(item => item.id === caseId);
+            if (!c) return;
+
+            if ((ownedCases[caseId] || 0) < 1 || (ownedKeys[caseId] || 0) < 1) {
+                return alert("Moraš imati i Kutiju i Ključ da bi otvorio!");
+            }
+
+            // Oduzmi 1 kutiju i 1 ključ
+            ownedCases[caseId]--;
+            ownedKeys[caseId]--;
+            isSpinningCase = true;
+            renderCasesUI();
+
+            const statusText = document.getElementById("case-status-text");
+            statusText.innerText = "🎰 Otvaranje u toku...";
+            statusText.style.color = "var(--gold)";
+
+            const winningItem = chooseWinningItem(c);
+            
+            // Generisanje reel-a od ~50 kartica
+            const reel = document.getElementById("case-reel");
+            reel.style.transition = "none";
+            reel.style.transform = "translateX(0px)";
+            
+            let reelItemsHtml = "";
+            const totalCards = 50;
+            const winningIndex = 38; // Pobjednički item stavljamo na poziciju 38
+
+            for (let i = 0; i < totalCards; i++) {
+                let itemDef;
+                if (i === winningIndex) {
+                    itemDef = winningItem;
+                } else {
+                    // Nasumičan item iz kutije za filler
+                    const randIndex = Math.floor(Math.random() * c.items.length);
+                    itemDef = ITEM_DATA[c.items[randIndex].id];
+                }
+
+                reelItemsHtml += `
+                    <div class="reel-item" style="border-bottom-color: ${itemDef.color}">
+                        <img src="${itemDef.icon}" onerror="this.src='${getSVGPlaceholder(itemDef.name, itemDef.color)}'" alt="${itemDef.name}">
+                        <div class="item-name" style="color: ${itemDef.color}">${itemDef.name}</div>
+                    </div>
+                `;
+            }
+            reel.innerHTML = reelItemsHtml;
+
+            // Izračunavanje pomaka za animaciju
+            // Svaki reel-item ima width 110px + margin-right 10px = 120px
+            const cardWidth = 120;
+            const containerWidth = document.querySelector('.case-spinner-container').offsetWidth;
+            const randomJitter = Math.floor(Math.random() * 80) - 40; // Nasumično odstupanje od centra
+            const targetOffset = (winningIndex * cardWidth) + (cardWidth / 2) - (containerWidth / 2) + randomJitter;
+
+            // Pokretanje animacije nakon kratkog pauziranja
+            setTimeout(() => {
+                reel.style.transition = "transform 5.5s cubic-bezier(0.1, 1, 0.1, 1)";
+                reel.style.transform = `translateX(-${targetOffset}px)`;
+
+                // Zvučni efekti prate rolanje
+                let tickCount = 0;
+                const soundInterval = setInterval(() => {
+                    tickCount++;
+                    playClickSound();
+                    if (tickCount > 25) clearInterval(soundInterval);
+                }, 180);
+
+                // Završetak otvaranja
+                setTimeout(() => {
+                    isSpinningCase = false;
+                    casesOpenedCount++;
+
+                    // Dodaj item u inventar
+                    inventory.unshift({
+                        instanceId: 'item_' + Date.now() + '_' + Math.floor(Math.random()*1000),
+                        itemId: winningItem.id,
+                        acquiredAt: Date.now()
+                    });
+
+                    saveUserData();
+                    renderInventoryUI();
+                    renderCasesUI();
+
+                    statusText.innerHTML = `🎉 OSVOJENO: <span style="color:${winningItem.color}">${winningItem.name}</span> (Vrijednost: ${winningItem.price} 🥜)! Spremljeno u Inventar.`;
+                }, 5600);
+            }, 50);
+        }
+
         // ======================= INVENTAR LOGIKA =======================
         function renderInventoryUI() {
             const grid = document.getElementById("inventory-grid");
@@ -869,7 +1255,7 @@
             if (!grid) return;
 
             if (inventory.length === 0) {
-                grid.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: var(--text-dim); padding: 30px;">Inventar je prazan. Kupi nasumičan skin ili osvoji Smokije u Kocka tabu!</p>`;
+                grid.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: var(--text-dim); padding: 30px;">Inventar je prazan. Otvori CS:GO kutije u Kocka tabu!</p>`;
                 if (totalValEl) totalValEl.innerText = "0.00 🥜 Smokija";
                 return;
             }
@@ -891,27 +1277,6 @@
             }).join('');
 
             if (totalValEl) totalValEl.innerText = `${totalVal.toFixed(2)} 🥜 Smokija`;
-        }
-
-        function buyRandomItem() {
-            const cost = 100;
-            if (smoki < cost) return alert("Nemaš dovoljno Smokija (potrebno 100 🥜)!");
-
-            updateSmoki(smoki - cost);
-
-            const keys = Object.keys(ITEM_DATA);
-            const randomKey = keys[Math.floor(Math.random() * keys.length)];
-            const itemDef = ITEM_DATA[randomKey];
-
-            inventory.unshift({
-                instanceId: 'item_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
-                itemId: itemDef.id,
-                acquiredAt: Date.now()
-            });
-
-            saveUserData();
-            renderInventoryUI();
-            alert(`🎉 Dobio si skin: ${itemDef.name} (Vrijednost: ${itemDef.price} 🥜)!`);
         }
 
         function sellItem(instanceId) {
@@ -1167,7 +1532,6 @@
                 for(let key in data) { scores.push(data[key]); }
                 scores.sort((a, b) => b.score - a.score);
 
- baseline:
                 scores.forEach((user, index) => {
                     let medal = index === 0 ? "🥇" : (index === 1 ? "🥈" : (index === 2 ? "🥉" : "🔹"));
                     list.innerHTML += `<li><span>${medal} ${user.name}</span> <span>${(user.score || 0).toFixed(2)} 🥜</span></li>`;

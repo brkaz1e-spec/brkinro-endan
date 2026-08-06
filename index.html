@@ -256,7 +256,7 @@
             color: var(--cyan);
         }
 
-        /* --- GAMES TAB & LOCKED STYLES --- */
+        /* --- GAMES TAB --- */
         .category-title {
             color: var(--cyan);
             margin: 20px 0 10px 0;
@@ -508,7 +508,7 @@
             <div class="game-section">
                 <div class="game-header">🔻 Plinko</div>
                 <p style="color: var(--text-dim); font-size: 0.85rem; margin-bottom: 10px; text-align: center;">
-                    Maksimalni ulog: 200,000 Smokija
+                    Maksimalni ulog: 1,000,000 Smokija
                 </p>
                 <div class="mines-controls">
                     <input type="number" id="plinko-bet" placeholder="Ulog (Smoki)" value="10" min="1" max="1000000">
@@ -809,12 +809,13 @@
         let currentMultiplier = 1.00;
 
         function getMinesMultiplier(minesCount, clicks) {
-            if (clicks === 0) return 1.00;
+            if (clicks <= 0) return 1.00;
             let mult = 1.0;
             for (let i = 0; i < clicks; i++) {
                 mult *= (25 - i) / (25 - minesCount - i);
             }
-            return mult * 0.97; // 97% Return-To-Player (3% House Edge)
+            let rtp = 0.99; // 99% Return-To-Player (1% House Edge)
+            return Math.max(1.01, mult * rtp);
         }
 
         function startMines() {
@@ -934,7 +935,7 @@
         function dropPlinko() {
             let bet = parseFloat(document.getElementById("plinko-bet").value);
             if(isNaN(bet) || bet <= 0) return alert("Unesite ispravan ulog!");
-            if(bet > 200000) return alert("Maksimalni ulog za Plinko je 1,000,000 Smokija!");
+            if(bet > 1000000) return alert("Maksimalni ulog za Plinko je 1,000,000 Smokija!");
             if(bet > smoki) return alert("Nemaš dovoljno Smokija za ulog!");
 
             updateSmoki(smoki - bet);

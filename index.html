@@ -691,10 +691,10 @@
             <div class="game-section">
                 <div class="game-header">💣 Mines</div>
                 <p style="color: var(--text-dim); font-size: 0.85rem; margin-bottom: 10px; text-align: center;">
-                    Izaberi ulog i broj mina za početak igre!
+                    Izaberi ulog i broj mina za početak igre! (Maks. ulog: 20,000,000 Smokija)
                 </p>
                 <div class="mines-controls">
-                    <input type="number" id="mines-bet" placeholder="Ulog (Smoki)" value="10" min="1">
+                    <input type="number" id="mines-bet" placeholder="Ulog (Smoki)" value="10" min="1" max="20000000">
                     <input type="number" id="mines-count" placeholder="Mina (1-24)" value="3" min="1" max="24">
                 </div>
                 <div class="game-info" id="mines-info">Multiplier: 1.00x</div>
@@ -787,10 +787,7 @@
                     { id: "gween_cheeto", weight: 0.44 }, // one in 70
                     { id: "goldflip_cheeto", weight: 0.01 } // one in 100
                 ]
-            },
-       
-            
-      
+            }
         ];
 
         let playerName = "";
@@ -1360,7 +1357,8 @@
             for (let i = 0; i < clicks; i++) {
                 mult *= (25 - i) / (25 - minesCount - i);
             }
-            let rtp = 0.99;
+            // Smanjen RTP na 0.93 da bi se profit na ranim pogocima uravnotežio
+            let rtp = 0.93; 
             return Math.max(1.01, mult * rtp);
         }
 
@@ -1371,6 +1369,7 @@
 
             if(isNaN(mines) || mines < 1 || mines > 24) return alert("Broj mina mora biti od 1 do 24!");
             if(isNaN(bet) || bet <= 0) return alert("Unesite ispravan ulog!");
+            if(bet > 20000000) return alert("Maksimalni ulog za Mines je 20,000,000 Smokija!");
             if(bet > smoki) return alert("Nemaš dovoljno Smokija za ulog!");
 
             updateSmoki(smoki - bet);
